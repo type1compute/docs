@@ -21,7 +21,30 @@ Check your repository name. The `baseUrl` in `docusaurus.config.js` must match:
    - **Folder**: `/ (root)`
 4. Click **Save**
 
-### 3. Deploy Using GitHub Actions (Recommended)
+### 3. Set Up Personal Access Token (Required if Read/Write Permissions Disabled)
+
+If your repository has "Read and write permissions" disabled, you need to create a Personal Access Token:
+
+1. **Create a Personal Access Token (PAT)**:
+   - Go to GitHub → **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**
+   - Click **Generate new token (classic)**
+   - Give it a name like "GitHub Pages Deploy"
+   - Select scopes:
+     - ✅ `repo` (Full control of private repositories)
+     - ✅ `workflow` (Update GitHub Action workflows)
+   - Click **Generate token**
+   - **Copy the token immediately** (you won't see it again!)
+
+2. **Add Token as Secret**:
+   - Go to your repository → **Settings** → **Secrets and variables** → **Actions**
+   - Click **New repository secret**
+   - Name: `PERSONAL_ACCESS_TOKEN`
+   - Value: Paste your token
+   - Click **Add secret**
+
+3. **The workflow will automatically use the PAT** if `GITHUB_TOKEN` doesn't have write permissions.
+
+### 4. Deploy Using GitHub Actions (Recommended)
 
 The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically:
 - Builds the site when you push to `main` or `master`
@@ -34,7 +57,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml
 3. Check the **Actions** tab to see the deployment status
 4. Wait a few minutes for GitHub Pages to update
 
-### 4. Manual Deployment
+### 5. Manual Deployment
 
 If you prefer manual deployment:
 
@@ -52,7 +75,7 @@ Or with SSH:
 USE_SSH=true npm run deploy
 ```
 
-### 5. Verify Deployment
+### 6. Verify Deployment
 
 After deployment:
 
@@ -61,7 +84,7 @@ After deployment:
 3. Wait 1-2 minutes for GitHub Pages to rebuild
 4. Visit: `https://type1compute.github.io/docs/` (adjust URL based on your repo name)
 
-### 6. Troubleshooting
+### 7. Troubleshooting
 
 **Issue: Still seeing README.md**
 - ✅ Check `baseUrl` matches repository name
@@ -69,6 +92,12 @@ After deployment:
 - ✅ Ensure `.nojekyll` file exists in `gh-pages` branch root
 - ✅ Clear browser cache and try incognito mode
 - ✅ Wait a few minutes for GitHub Pages to update
+
+**Issue: Permission Denied (403 Error)**
+- ✅ Create a Personal Access Token (PAT) with `repo` scope
+- ✅ Add PAT as `PERSONAL_ACCESS_TOKEN` secret in repository settings
+- ✅ The workflow will automatically use PAT if GITHUB_TOKEN lacks permissions
+- ✅ Verify the token has not expired
 
 **Issue: 404 errors**
 - ✅ Check `baseUrl` is correct (should end with `/`)
@@ -80,7 +109,7 @@ After deployment:
 - ✅ Verify all static assets are deployed
 - ✅ Check network tab for failed resource loads
 
-### 7. Current Configuration
+### 8. Current Configuration
 
 ```javascript
 // docusaurus.config.js
