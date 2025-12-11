@@ -22,15 +22,17 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        run: |
+          git clone --depth 1 https://github.com/type1compute/docs.git .
+          git fetch --unshallow || true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          node --version
+          npm --version
 
       - name: Install dependencies
         run: npm ci
@@ -39,12 +41,14 @@ jobs:
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        with:
-          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          publish_dir: ./build
-          cname: false
-          allow_empty_commit: false
-          force_orphan: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          cd build
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Deploy to GitHub Pages - $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
+          git remote add origin https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/type1compute/docs.git || git remote set-url origin https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/type1compute/docs.git
+          git push -f origin HEAD:gh-pages
