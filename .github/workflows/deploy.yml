@@ -23,9 +23,9 @@ jobs:
       name: github-pages
     steps:
       - name: Checkout repository
-        run: |
-          git clone --depth 1 https://github.com/type1compute/docs.git .
-          git fetch --unshallow || true
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         run: |
@@ -42,7 +42,7 @@ jobs:
 
       - name: Deploy to GitHub Pages
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd build
           git init
@@ -50,5 +50,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Deploy to GitHub Pages - $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
-          git remote add origin https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/type1compute/docs.git || git remote set-url origin https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/type1compute/docs.git
+          git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/type1compute/docs.git || git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/type1compute/docs.git
           git push -f origin HEAD:gh-pages
