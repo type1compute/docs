@@ -1,0 +1,26 @@
+# Requirements for running the tutorial notebooks
+#
+# Prerequisites:
+#   - SSH key configured for GitLab access
+#   - See: https://docs.gitlab.com/ee/user/ssh.html
+#
+# Install with:
+#   pip install -r requirements.txt
+# Or with uv:
+#   uv pip install -r requirements.txt
+
+# T1C packages from GitLab (requires SSH access)
+# PyPI names: t1c-ir, t1c-bridge, t1c-viz, t1c-sdk (repos: t1cir, t1ctorch, t1cviz, t1c-sdk)
+t1c-ir @ git+ssh://git@gitlab.com/cvision-dev/type1compute/t1cir.git
+t1c-bridge @ git+ssh://git@gitlab.com/cvision-dev/type1compute/t1ctorch.git
+t1c-viz @ git+ssh://git@gitlab.com/cvision-dev/type1compute/t1cviz.git
+t1c-sdk @ git+ssh://git@gitlab.com/cvision-dev/type1compute/t1c-sdk.git
+
+# Core dependencies
+torch>=2.0.0
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
+# Optional: For neuromorphic event visualization with Numba acceleration
+# Uncomment if you want to run spike visualization examples:
+# tonic>=1.6.0
