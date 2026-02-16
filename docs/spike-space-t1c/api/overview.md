@@ -8,11 +8,11 @@ sidebar_position: 1
 
 | Module | Classes / Key Functions |
 |--------|------------------------|
-| [`spikeseg.core`](api/core) | `IFNeuron`, `LIFNeuron`, `SpikingConv2d`, `SpikingPool2d`, `spike_fn`, `create_dog_filters`, `create_gabor_filters` |
-| [`spikeseg.models`](api/models) | `SpikeSEG`, `SpikeSEGEncoder`, `SpikeSEGDecoder`, `EncoderConfig`, `EncoderOutput` |
-| [`spikeseg.learning`](api/learning) | `STDPLearner`, `STDPConfig`, `WTAInhibition`, `AdaptiveThreshold`, `ConvergenceTracker` |
-| [`spikeseg.algorithms`](api/algorithms) | `HULKDecoder`, `ActiveSpikeHash`, `Instance`, `Object`, `BoundingBox`, `group_instances_to_objects` |
-| [`spikeseg.data`](api/data) | `EBSSADataset`, `NMNISTDataset`, `EventData`, `SpikeSEGPreprocessor`, `SpykeTorchPreprocessor` |
+| [`spikeseg.core`](core) | `IFNeuron`, `LIFNeuron`, `SpikingConv2d`, `SpikingPool2d`, `spike_fn`, `create_dog_filters`, `create_gabor_filters` |
+| [`spikeseg.models`](models) | `SpikeSEG`, `SpikeSEGEncoder`, `SpikeSEGDecoder`, `EncoderConfig`, `EncoderOutput` |
+| [`spikeseg.learning`](learning) | `STDPLearner`, `STDPConfig`, `WTAInhibition`, `AdaptiveThreshold`, `ConvergenceTracker` |
+| [`spikeseg.algorithms`](algorithms) | `HULKDecoder`, `ActiveSpikeHash`, `Instance`, `Object`, `BoundingBox`, `group_instances_to_objects` |
+| [`spikeseg.data`](data) | `EBSSADataset`, `NMNISTDataset`, `EventData`, `SpikeSEGPreprocessor`, `SpykeTorchPreprocessor` |
 
 ## Quick Imports
 

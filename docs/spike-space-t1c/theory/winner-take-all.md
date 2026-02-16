@@ -65,4 +65,4 @@ wta = WTAInhibition(config=config, n_channels=36, spatial_shape=(32, 32))
 filtered_spikes, winner_mask = wta(spikes, membrane, pre_reset_membrane)
 ```
 
-See [API: Learning](api/learning) for `AdaptiveThreshold` and `ConvergenceTracker`.
+See [API: Learning](../api/learning) for `AdaptiveThreshold` and `ConvergenceTracker`.

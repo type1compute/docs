@@ -62,4 +62,4 @@ All convolutional weights are drawn from $\mathcal{N}(0.8, 0.01)$ and clipped to
 1. **Saliency map** (decoder path): all classification spikes are decoded together into a single pixel-level heat map.
 2. **Instance masks** (HULK-SMASH path): each classification spike is decoded separately, producing one mask per instance, then grouped by SMASH similarity.
 
-See [Encoder](architecture/encoder), [Decoder](architecture/decoder), [HULK-SMASH](architecture/hulk-smash).
+See [Encoder](encoder), [Decoder](decoder), [HULK-SMASH](hulk-smash).

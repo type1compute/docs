@@ -91,4 +91,4 @@ spikes, membrane, pre_reset = neuron(input_current, membrane)
 neuron = create_neuron("lif", threshold=10.0, leak_factor=9.0, leak_mode="subtractive")
 ```
 
-See [API: Core](api/core) for complete signatures.
+See [API: Core](../api/core) for complete signatures.

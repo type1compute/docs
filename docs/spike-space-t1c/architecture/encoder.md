@@ -73,4 +73,4 @@ config = EncoderConfig.from_paper("igarss2023", n_classes=1)
 encoder = SpikeSEGEncoder(config)
 ```
 
-See [API: Models](api/models) for all constructor parameters.
+See [API: Models](../api/models) for all constructor parameters.
