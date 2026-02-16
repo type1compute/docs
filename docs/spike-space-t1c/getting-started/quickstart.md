@@ -33,7 +33,7 @@ for t in range(10):
 python scripts/train.py --config configs/config.yaml
 ```
 
-Training is layer-wise: Conv1 uses fixed DoG filters, Conv2 and Conv3 are trained via STDP with WTA competition. The script saves checkpoints, TensorBoard logs, and a final metrics JSON. See [Training Guide](guides/training) for details.
+Training is layer-wise: Conv1 uses fixed DoG filters, Conv2 and Conv3 are trained via STDP with WTA competition. The script saves checkpoints, TensorBoard logs, and a final metrics JSON. See [Training Guide](../guides/training) for details.
 
 ## Instance Segmentation with HULK-SMASH
 
@@ -75,13 +75,13 @@ python scripts/evaluate.py \
   --output metrics.json
 ```
 
-This runs volume-based evaluation (IGARSS 2023 methodology) and writes all metrics to `metrics.json`. See [Evaluation Guide](guides/evaluation).
+This runs volume-based evaluation (IGARSS 2023 methodology) and writes all metrics to `metrics.json`. See [Evaluation Guide](../guides/evaluation).
 
 ## What Next
 
 | Goal | Page |
 |------|------|
-| Understand the theory | [Spiking Neurons](theory/spiking-neurons) |
-| See the full architecture | [Architecture Overview](architecture/overview) |
-| Configure training | [Configuration](guides/configuration) |
-| Browse the API | [API Reference](api/overview) |
+| Understand the theory | [Spiking Neurons](../theory/spiking-neurons) |
+| See the full architecture | [Architecture Overview](../architecture/overview) |
+| Configure training | [Configuration](../guides/configuration) |
+| Browse the API | [API Reference](../api/overview) |

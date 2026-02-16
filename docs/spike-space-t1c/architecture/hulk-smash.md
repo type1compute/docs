@@ -79,4 +79,4 @@ objects = group_instances_to_objects(instances, smash_threshold=0.1)
 Each `Instance` carries: `instance_id`, `ash` (ActiveSpikeHash), `bbox` (BoundingBox), `mask`, `class_id`.
 Each `Object` aggregates instances and computes a combined bounding box.
 
-See [API: Algorithms](api/algorithms) for full class signatures.
+See [API: Algorithms](../api/algorithms) for full class signatures.

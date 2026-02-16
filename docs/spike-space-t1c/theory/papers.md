@@ -73,4 +73,4 @@ SpikeSEG synthesises methods from four publications. This page summarises each p
 | [7] | S. Afshar et al., "Event-based object detection and tracking for space situational awareness," *IEEE Sensors Journal*, vol. 20, no. 24, pp. 15117--15132, 2020. |
 | [8] | G. Orchard et al., "Converting static image datasets to spiking neuromorphic datasets using saccades," *Frontiers in Neuroscience*, vol. 9, p. 437, 2015. |
 
-See [Citation](citation) for BibTeX entries.
+See [Citation](../citation) for BibTeX entries.

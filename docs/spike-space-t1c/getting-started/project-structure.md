@@ -72,4 +72,4 @@ Configuration is managed through YAML files parsed by `spikeseg.config`:
 - `merge_configs(base, override)` deep-merges two configs (CLI overrides).
 - Typed dataclasses (`STDPParams`, `ModelParams`, `DataParams`) provide validated access to parameters.
 
-See [Configuration Guide](guides/configuration) for all keys.
+See [Configuration Guide](../guides/configuration) for all keys.

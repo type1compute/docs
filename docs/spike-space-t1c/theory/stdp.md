@@ -82,4 +82,4 @@ if metric < 0.01:
     print("Layer converged")
 ```
 
-See [API: Learning](api/learning) for complete signatures and the additive STDP variant.
+See [API: Learning](../api/learning) for complete signatures and the additive STDP variant.

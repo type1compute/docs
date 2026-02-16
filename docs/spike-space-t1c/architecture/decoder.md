@@ -52,4 +52,4 @@ mask = decoder.decode_single_spike(
 )
 ```
 
-See [HULK-SMASH](architecture/hulk-smash) for how this enables instance segmentation.
+See [HULK-SMASH](hulk-smash) for how this enables instance segmentation.
