@@ -4,10 +4,10 @@ sidebar_position: 4
 
 # Quick Start
 
-Export your first snnTorch model to T1C-IR in under 5 minutes.
+Export your first snnTorch model to TALON IR in under 5 minutes.
 
 :::tip SDK Alternative
-You can also use the unified SDK: `from t1c import sdk` which includes all packages.
+You can also use the unified SDK: `from talon import sdk` which includes all packages.
 :::
 
 ## Step 1: Define a Model
@@ -41,10 +41,10 @@ class SimpleSNN(nn.Module):
 model = SimpleSNN()
 ```
 
-## Step 2: Export to T1C-IR
+## Step 2: Export to TALON IR
 
 ```python
-from t1c import bridge, ir
+from talon import bridge, ir
 
 # Sample input (batch_size=1, features=784)
 sample = torch.randn(1, 784)
@@ -76,7 +76,7 @@ print(f"Saved. Version: {ir.read_version('model.t1c')}")
 ## Step 4: Visualize
 
 ```python
-from t1c import viz
+from talon import viz
 
 # Display in browser or Jupyter
 viz.visualize(graph, title="SimpleSNN")
@@ -110,7 +110,7 @@ for t in range(10):  # 10 timesteps
 import torch
 import torch.nn as nn
 import snntorch as snn
-from t1c import ir, bridge, viz
+from talon import ir, bridge, viz
 
 # 1. Model
 class SimpleSNN(nn.Module):
@@ -150,14 +150,27 @@ output, state = executor(torch.randn(1, 784), {})
 print(f"Output shape: {output.shape}")
 ```
 
-## Interactive Tutorial
+## Tutorials
 
-For a hands-on introduction with step-by-step explanations, see the [T1C Tutorial Notebook](./example_notebooks/tutorial_t1cir_basics.ipynb).
+Step-by-step guides with inline code and output:
+
+- [Tutorial: TALON IR Basics](./tutorial/tutorial_t1cir_basics) — Primitives, graphs, serialization, ghost & detection
+- [Tutorial: T1CViz](./tutorial/tutorial_t1cviz) — Graph visualization and event processing
+- [Tutorial: TALON SDK](./tutorial/tutorial_talon) — Analysis, profiling, linting, fingerprinting
+- [Tutorial: Bridge](./tutorial/tutorial_bridge) — Export/import, stateful LIF, CyclicGraphExecutor
+- [Tutorial: Ghost & Detection](./tutorial/tutorial_ghost_detection) — GhostNet primitives and detection pipeline
+- [Tutorial: Hardware Mapping](./tutorial/tutorial_hardware_mapping) — Partition, allocate, route, place
+- [Tutorial: Backend](./tutorial/tutorial_backend) — Simulate, profile, energy presets, FPGA
+- [Tutorial: Event I/O](./tutorial/tutorial_event_io) — Neural encoding, HDF5, throughput
+- [Tutorial: snnTorch Integration](./tutorial/tutorial_snntorch_integration) — snnTorch export/import round-trip with SDK analysis
+- [Tutorial: End-to-End Pipeline](./tutorial/tutorial_end_to_end) — Full workflow from model definition through hardware simulation
+
+For local notebook execution, see the [example_notebooks](./example_notebooks/) directory.
 
 ## What's Next
 
-- [Primitives Reference](./primitives) - All 22+ T1C-IR primitives
-- [Export Guide](./export) - Advanced export options
-- [Import Guide](./import) - GraphExecutor details
-- [Visualization](./visualization) - Customizing visualizations
+- [Primitives Reference](./primitives) — All 36 TALON IR primitives
+- [Export Guide](./export) — Advanced export options
+- [Import Guide](./import) — GraphExecutor details
+- [Visualization](./visualization) — Customizing visualizations
 

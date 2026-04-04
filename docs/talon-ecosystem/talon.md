@@ -2,37 +2,46 @@
 sidebar_position: 10
 ---
 
-# T1C SDK
+# TALON — Tactical AI at Low-power On-device Nodes
 
-The T1C SDK is the unified development kit for Type 1 Compute neuromorphic computing. It provides analysis, profiling, conversion, and deployment tools for spiking neural networks.
+**TALON** is the unified development kit for Type 1 Compute neuromorphic computing. It provides analysis, profiling, conversion, and deployment tools for spiking neural networks.
 
 ## Installation
 
 ```bash
-pip install t1c-sdk
+pip install t1c-talon
 ```
 
 Or with uv:
 
 ```bash
-uv add t1c-sdk
+uv add t1c-talon
 ```
 
 This installs the SDK along with all ecosystem packages:
-- **t1c.ir** (PyPI: t1c-ir) - Core IR primitives
-- **t1c.bridge** (PyPI: t1c-bridge) - PyTorch bridge
-- **t1c.viz** (PyPI: t1c-viz) - Graph visualization
+- **talon.ir** (PyPI: `talon-ir`) - Core IR primitives (36) and HDF5 serialization
+- **talon.bridge** (PyPI: `talon-bridge`) - PyTorch export/import bridge with mixed-precision quantization
+- **talon.viz** (PyPI: `talon-viz`) - Interactive graph & spike visualization, pattern detection
+- **talon.graph** (PyPI: `talon-graph`) - Graph partitioning, hardware placement, spike routing
+- **talon.backend** (PyPI: `talon-backend`) - Backend compilation, CPU simulation/profiling, HLS4ML FPGA config
+- **talon.io** (PyPI: `talon-io`) - Event streaming, sensor I/O (EVT2/EVT3/AEDAT4), neural encoding
 
-## Interactive Tutorial
+## Tutorials
 
-For a hands-on introduction with step-by-step explanations, see the [T1C SDK Tutorial Notebook](./example_notebooks/tutorial_t1c_sdk.ipynb).
+- [Tutorial: TALON SDK](./tutorial/tutorial_talon) — Step-by-step guide with inline code and output
+- [Tutorial: Bridge](./tutorial/tutorial_bridge) — Export/import, stateful LIF, CyclicGraphExecutor
+- [Tutorial: Backend](./tutorial/tutorial_backend) — Simulate, profile, energy presets, FPGA
+- [Tutorial: snnTorch Integration](./tutorial/tutorial_snntorch_integration) — snnTorch export/import with SDK analysis
+- [Tutorial: End-to-End Pipeline](./tutorial/tutorial_end_to_end) — Full workflow from model to hardware
+
+For local notebook execution, see the [example_notebooks](./example_notebooks/) directory.
 
 ## Quick Start
 
 ```python
-from t1c import sdk
+from talon import sdk
 
-# Export PyTorch model to T1C-IR
+# Export PyTorch model to TALON IR
 graph = sdk.to_ir(model, sample_input)
 sdk.write('model.t1c', graph)
 
@@ -56,28 +65,38 @@ The SDK provides a comprehensive command-line interface:
 
 | Command | Description |
 |---------|-------------|
-| `t1c info` | Ecosystem version information |
-| `t1c analyze FILE` | Graph structure and statistics |
-| `t1c profile FILE` | Hardware profiling and resource estimation |
-| `t1c compare A B` | Compare two graphs (structural + numerical diff) |
-| `t1c convert FILE` | Convert to SpikingAffine, quantize weights |
-| `t1c validate FILE` | Validate graph structure |
-| `t1c lint FILE` | Lint graph for common issues |
-| `t1c hash FILE` | Generate deterministic fingerprint |
-| `t1c stamp FILE` | Add provenance metadata |
-| `t1c node FILE NODE` | Inspect specific node |
-| `t1c trace FILE A B` | Trace paths from A to B |
-| `t1c visualize FILE` | Interactive browser visualization |
-| `t1c export-html FILE` | Export to standalone HTML |
-| `t1c primitives` | List available primitives |
+| `talon info` | Ecosystem version information |
+| `talon analyze FILE` | Graph structure and statistics |
+| `talon profile FILE` | Hardware profiling and resource estimation |
+| `talon compare A B` | Compare two graphs (structural + numerical diff) |
+| `talon convert FILE` | Convert to SpikingAffine, quantize weights |
+| `talon validate FILE` | Validate graph structure |
+| `talon lint FILE` | Lint graph for common issues |
+| `talon hash FILE` | Generate deterministic fingerprint |
+| `talon stamp FILE` | Add provenance metadata |
+| `talon node FILE NODE` | Inspect specific node |
+| `talon trace FILE A B` | Trace paths from A to B |
+| `talon visualize FILE` | Interactive browser visualization |
+| `talon export-html FILE` | Export to standalone HTML |
+| `talon primitives` | List available primitives |
+| `talon quantize FILE` | Mixed-precision fixed-point quantization |
+| `talon partition FILE` | Graph partitioning for hardware cores |
+| `talon compile FILE` | Compile to hardware descriptor (JSON/binary) |
+| `talon simulate FILE` | CPU simulation for correctness validation |
+| `talon energy FILE` | Energy estimation (MAC-based, 45nm process) |
+| `talon pipeline FILE` | Full pipeline: load -> lint -> partition -> compile -> simulate |
+| `talon run FILE` | Quick simulation (graph.run convenience) |
+| `talon profile-hw FILE` | From-scratch CPU profiler (latency/energy) |
+
+> All commands also available as `t1c <command>` (alias).
 
 ### CLI Examples
 
 ```bash
 # Analyze graph structure
-$ t1c analyze model.t1c -v
+$ talon analyze model.t1c -v
 
-T1C-IR Graph Summary
+TALON IR Graph Summary
 ==================================================
 Nodes: 7  |  Edges: 6  |  Depth: 6  |  Width: 1
 Parameters: 235.1K  |  Memory: 918.5 KB  |  FLOPs: 469.5K
@@ -91,9 +110,9 @@ Layer Types:
 SNN: 2 LIF neuron layer(s)
 
 # Hardware profiling
-$ t1c profile model.t1c
+$ talon profile model.t1c
 
-T1C Hardware Profile
+TALON Hardware Profile
 ==================================================
 
 Memory Estimates:
@@ -108,7 +127,7 @@ Compute Estimates:
   Spike operations: 384
 
 # Compare two graphs
-$ t1c compare model_v1.t1c model_v2.t1c
+$ talon compare model_v1.t1c model_v2.t1c
 
 ╭─────────── Graph Comparison ───────────╮
 │ model_v1.t1c vs model_v2.t1c           │
@@ -121,7 +140,7 @@ Modified nodes: 2
 Max weight difference: 1.23e-04
 
 # Lint for issues
-$ t1c lint model.t1c
+$ talon lint model.t1c
 
 ✓ Graph is valid
 Warnings: 2
@@ -129,7 +148,7 @@ Warnings: 2
   [LARGE_MODEL] Graph has 10,523,456 parameters
 
 # Inspect specific node
-$ t1c node model.t1c fc1
+$ talon node model.t1c fc1
 
 Node: fc1 (Affine)
 ├─ Inputs: input
@@ -138,7 +157,7 @@ Node: fc1 (Affine)
 └─ Bias: (256,), mean=0.0001, std=0.0089
 
 # Convert to SpikingAffine
-$ t1c convert model.t1c --spiking --weight-bits 8 -o model_hw.t1c
+$ talon convert model.t1c --spiking --weight-bits 8 -o model_hw.t1c
 ✓ Converted 2 Affine layers to SpikingAffine
 ✓ Saved to: model_hw.t1c
 ```
@@ -155,10 +174,10 @@ This section provides detailed documentation for all core SDK methods. These are
 
 #### `analyze_graph(graph) → GraphStats`
 
-Analyze a T1C-IR graph and return comprehensive statistics.
+Analyze a TALON IR graph and return comprehensive statistics.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph | str`): Graph object or path to `.t1c` file
+- `graph` (`talon.ir.Graph | str`): Graph object or path to `.t1c` file
 
 **Returns:**
 - `GraphStats` dataclass with the following fields:
@@ -180,7 +199,7 @@ Analyze a T1C-IR graph and return comprehensive statistics.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 stats = sdk.analyze_graph("model.t1c")
 
@@ -203,7 +222,7 @@ Analyze a single node and return its statistics.
 
 **Parameters:**
 - `name` (str): Node name
-- `node` (`t1c.ir.Node`): Node object
+- `node` (`talon.ir.Node`): Node object
 
 **Returns:**
 - `LayerStats` dataclass with:
@@ -218,7 +237,7 @@ Analyze a single node and return its statistics.
 
 **Example:**
 ```python
-from t1c import sdk, ir
+from talon import sdk, ir
 
 graph = ir.read("model.t1c")
 layer_stats = sdk.analyze_node("fc1", graph.nodes["fc1"])
@@ -236,7 +255,7 @@ print(f"Config: {layer_stats.config}")        # {"weight_shape": (256, 784)}
 Generate a human-readable summary string for a graph.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph | str`): Graph or path
+- `graph` (`talon.ir.Graph | str`): Graph or path
 - `verbose` (bool): Include per-layer breakdown (default: False)
 
 **Returns:**
@@ -244,10 +263,10 @@ Generate a human-readable summary string for a graph.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 print(sdk.summarize("model.t1c", verbose=True))
-# T1C-IR Graph Summary
+# TALON IR Graph Summary
 # ==================================================
 # Nodes: 7  |  Edges: 6  |  Depth: 6  |  Width: 1
 # Parameters: 235.1K  |  Memory: 918.5 KB  |  FLOPs: 469.5K
@@ -261,7 +280,7 @@ print(sdk.summarize("model.t1c", verbose=True))
 Format byte count as human-readable string.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 sdk.format_bytes(1024)        # "1.0 KB"
 sdk.format_bytes(1048576)     # "1.0 MB"
@@ -275,7 +294,7 @@ sdk.format_bytes(500)         # "500 B"
 Format large numbers with K/M suffix.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 sdk.format_number(500)        # "500"
 sdk.format_number(1500)       # "1,500"
@@ -289,11 +308,11 @@ sdk.format_number(1500000)    # "1.50M"
 
 #### `compare_graphs(graph_a, graph_b, atol=1e-6, rtol=1e-5) → GraphDiff`
 
-Compare two T1C-IR graphs and return detailed differences.
+Compare two TALON IR graphs and return detailed differences.
 
 **Parameters:**
-- `graph_a` (`t1c.ir.Graph | str`): First graph
-- `graph_b` (`t1c.ir.Graph | str`): Second graph
+- `graph_a` (`talon.ir.Graph | str`): First graph
+- `graph_b` (`talon.ir.Graph | str`): Second graph
 - `atol` (float): Absolute tolerance for numerical comparison
 - `rtol` (float): Relative tolerance for numerical comparison
 
@@ -315,7 +334,7 @@ Compare two T1C-IR graphs and return detailed differences.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 diff = sdk.compare_graphs("model_v1.t1c", "model_v2.t1c")
 
@@ -341,8 +360,8 @@ Compare two individual nodes.
 
 **Parameters:**
 - `name` (str): Node name
-- `node_a` (`t1c.ir.Node`): First node
-- `node_b` (`t1c.ir.Node`): Second node
+- `node_a` (`talon.ir.Node`): First node
+- `node_b` (`talon.ir.Node`): Second node
 - `atol` (float): Absolute tolerance
 - `rtol` (float): Relative tolerance
 
@@ -369,7 +388,7 @@ Assert two graphs are equal, raising `AssertionError` if not.
 
 **Example:**
 ```python
-from t1c import sdk, ir
+from talon import sdk, ir
 
 # In a test
 def test_roundtrip():
@@ -387,10 +406,10 @@ def test_roundtrip():
 
 #### `profile_graph(graph) → HardwareProfile`
 
-Generate hardware resource estimates for a T1C-IR graph.
+Generate hardware resource estimates for a TALON IR graph.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph | str`): Graph or path
+- `graph` (`talon.ir.Graph | str`): Graph or path
 
 **Returns:**
 - `HardwareProfile` dataclass with:
@@ -416,7 +435,7 @@ Generate hardware resource estimates for a T1C-IR graph.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 profile = sdk.profile_graph("model.t1c")
 
@@ -443,7 +462,7 @@ Format a HardwareProfile as a human-readable string.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 profile = sdk.profile_graph("model.t1c")
 print(sdk.format_profile(profile))
@@ -458,7 +477,7 @@ print(sdk.format_profile(profile))
 Convert Affine layers to SpikingAffine for hardware optimization.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph | str`): Input graph
+- `graph` (`talon.ir.Graph | str`): Input graph
 - `weight_bits` (int): Bit width for quantized weights (default: 8)
 - `accumulator_bits` (int): Bit width for accumulator (default: 16)
 - `spike_mode` (str): Spike encoding - "binary", "rate", or "temporal"
@@ -468,7 +487,7 @@ Convert Affine layers to SpikingAffine for hardware optimization.
 
 **Example:**
 ```python
-from t1c import sdk, ir
+from talon import sdk, ir
 
 # Load model
 graph = ir.read("model.t1c")
@@ -496,7 +515,7 @@ print(hw_graph.metadata)
 Quantize graph weights to fixed-point representation (simulated).
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph | str`): Input graph
+- `graph` (`talon.ir.Graph | str`): Input graph
 - `bits` (int): Target bit width (default: 8)
 - `per_channel` (bool): Use per-channel scaling vs per-tensor
 
@@ -507,7 +526,7 @@ Quantize graph weights to fixed-point representation (simulated).
 
 **Example:**
 ```python
-from t1c import sdk, ir
+from talon import sdk, ir
 
 graph = ir.read("model.t1c")
 quantized = sdk.quantize_weights(graph, bits=8)
@@ -521,7 +540,7 @@ print(f"Max weight change: {diff.max_weight_diff:.6f}")
 
 #### `batch_convert(sources, dest_dir, processor=None, overwrite=False) → list[ConversionResult]`
 
-Batch convert multiple T1C-IR graphs.
+Batch convert multiple TALON IR graphs.
 
 **Parameters:**
 - `sources` (list): List of source .t1c file paths
@@ -539,7 +558,7 @@ Batch convert multiple T1C-IR graphs.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 from pathlib import Path
 
 # Convert all models in a directory to spiking
@@ -561,7 +580,7 @@ for r in results:
 
 #### `merge_graphs(*graphs, prefix=True) → Graph`
 
-Merge multiple T1C-IR graphs into a single graph.
+Merge multiple TALON IR graphs into a single graph.
 
 **Parameters:**
 - `*graphs`: Variable number of graphs to merge
@@ -577,7 +596,7 @@ Merge multiple T1C-IR graphs into a single graph.
 Remove disconnected nodes from a graph.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph | str`): Input graph
+- `graph` (`talon.ir.Graph | str`): Input graph
 
 **Returns:**
 - New graph with only connected nodes
@@ -588,10 +607,10 @@ Remove disconnected nodes from a graph.
 
 #### `lint_graph(graph, strict=False) → LintResult`
 
-Lint a T1C-IR graph for common issues and best practices.
+Lint a TALON IR graph for common issues and best practices.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to lint
+- `graph` (`talon.ir.Graph`): Graph to lint
 - `strict` (bool): If True, treat warnings as errors
 
 **Returns:**
@@ -614,7 +633,7 @@ Lint a T1C-IR graph for common issues and best practices.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 result = sdk.lint_graph(graph)
 
@@ -644,7 +663,7 @@ lint_dict = result.to_dict()
 Generate a deterministic fingerprint (SHA256 hash) of a graph.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to fingerprint
+- `graph` (`talon.ir.Graph`): Graph to fingerprint
 - `include_weights` (bool): Include parameter values in hash
 - `include_metadata` (bool): Include metadata dict in hash
 
@@ -659,7 +678,7 @@ Generate a deterministic fingerprint (SHA256 hash) of a graph.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 # Full fingerprint (structure + weights)
 hash_full = sdk.fingerprint_graph(graph, include_weights=True)
@@ -680,7 +699,7 @@ print(f"Structure hash: {hash_struct[:16]}...")
 Add provenance metadata to a graph.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to stamp (not modified in-place)
+- `graph` (`talon.ir.Graph`): Graph to stamp (not modified in-place)
 - `notes` (str | None): Human-readable notes
 - `git_commit` (str | None): Git commit hash
 - `training_run_id` (str | None): Training run identifier (e.g., MLflow run ID)
@@ -689,14 +708,14 @@ Add provenance metadata to a graph.
 
 **Returns:**
 - New graph with stamped metadata including:
-  - SDK versions (t1c-sdk, t1c.ir, t1c.bridge, t1c.viz)
+  - SDK versions (talon, talon.ir, talon.bridge, talon.viz)
   - UTC timestamp
   - Structure and full fingerprints
   - User-provided metadata
 
 **Example:**
 ```python
-from t1c import sdk, ir
+from talon import sdk, ir
 
 graph = ir.read("model.t1c")
 
@@ -722,19 +741,19 @@ ir.write("model_production.t1c", stamped)
 Extract provenance stamp from a graph's metadata.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to read stamp from
+- `graph` (`talon.ir.Graph`): Graph to read stamp from
 
 **Returns:**
 - Provenance dict if present, None otherwise
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 stamp = sdk.get_stamp(graph)
 if stamp:
     print(f"Created: {stamp['timestamp']}")
-    print(f"SDK: {stamp['sdk_versions']['t1c-sdk']}")
+    print(f"SDK: {stamp['sdk_versions']['talon']}")
     print(f"Hash: {stamp['fingerprint_full'][:24]}...")
 ```
 
@@ -745,7 +764,7 @@ if stamp:
 Verify a graph matches an expected fingerprint.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to verify
+- `graph` (`talon.ir.Graph`): Graph to verify
 - `expected_hash` (str): Expected hash
 - `include_weights` (bool): Whether to include weights in verification
 
@@ -754,7 +773,7 @@ Verify a graph matches an expected fingerprint.
 
 **Example:**
 ```python
-from t1c import sdk, ir
+from talon import sdk, ir
 
 # Save expected hash
 expected = sdk.fingerprint_graph(original_graph)
@@ -774,7 +793,7 @@ if not sdk.verify_fingerprint(loaded, expected):
 Get detailed information about a specific node.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph containing the node
+- `graph` (`talon.ir.Graph`): Graph containing the node
 - `node_name` (str): Name of node to inspect
 
 **Returns:**
@@ -792,7 +811,7 @@ Get detailed information about a specific node.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 info = sdk.inspect_node(graph, "fc1")
 
@@ -815,7 +834,7 @@ print(f"Weight range: [{w['min']:.4f}, {w['max']:.4f}]")
 Find all paths from source to destination node.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to search
+- `graph` (`talon.ir.Graph`): Graph to search
 - `src` (str): Source node name
 - `dst` (str): Destination node name
 
@@ -827,7 +846,7 @@ Find all paths from source to destination node.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 paths = sdk.trace_path(graph, "input", "output")
 
@@ -844,7 +863,7 @@ for path in paths:
 Extract a subgraph containing only specified nodes.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Source graph
+- `graph` (`talon.ir.Graph`): Source graph
 - `node_names` (list): Nodes to include
 
 **Returns:**
@@ -852,7 +871,7 @@ Extract a subgraph containing only specified nodes.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 # Extract first layer for analysis
 subgraph = sdk.extract_subgraph(graph, ["input", "fc1", "lif1"])
@@ -865,7 +884,7 @@ subgraph = sdk.extract_subgraph(graph, ["input", "fc1", "lif1"])
 Find all occurrences of a node type pattern in the graph.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to search
+- `graph` (`talon.ir.Graph`): Graph to search
 - `pattern` (str): Pattern string, e.g., "Conv2d->LIF" or "Affine->LIF->Affine"
 
 **Returns:**
@@ -873,7 +892,7 @@ Find all occurrences of a node type pattern in the graph.
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 # Find all FC→LIF sequences
 matches = sdk.find_pattern(graph, "Affine->LIF")
@@ -892,14 +911,14 @@ conv_patterns = find_pattern(graph, "Conv2d->LIF->MaxPool2d")
 Get statistics about node types and parameters.
 
 **Parameters:**
-- `graph` (`t1c.ir.Graph`): Graph to analyze
+- `graph` (`talon.ir.Graph`): Graph to analyze
 
 **Returns:**
 - Dict with stats grouped by node type
 
 **Example:**
 ```python
-from t1c import sdk
+from talon import sdk
 
 stats = sdk.get_node_statistics(graph)
 
@@ -912,14 +931,14 @@ for node_type, info in stats.items():
 
 ---
 
-### Visualization Module (re-exported from t1c.viz)
+### Visualization Module (re-exported from talon.viz)
 
 #### `visualize(graph, **kwargs)`
 
 Open interactive graph visualization in browser.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 sdk.visualize(graph, title="My SNN Model")
 ```
@@ -931,21 +950,21 @@ sdk.visualize(graph, title="My SNN Model")
 Export graph to standalone HTML file.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 sdk.export_html(graph, "model.html", title="Production Model")
 ```
 
 ---
 
-### Export/Import Module (re-exported from t1c.bridge)
+### Export/Import Module (re-exported from talon.bridge)
 
 #### `to_ir(module, sample_data, **kwargs) → Graph`
 
-Export a PyTorch module to T1C-IR graph.
+Export a PyTorch module to TALON IR graph.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 graph = sdk.to_ir(model, sample_input)
 ```
@@ -954,10 +973,10 @@ graph = sdk.to_ir(model, sample_input)
 
 #### `ir_to_torch(graph_or_path, return_state=False, **kwargs) → GraphExecutor`
 
-Import a T1C-IR graph to a PyTorch executor.
+Import a TALON IR graph to a PyTorch executor.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 executor = sdk.ir_to_torch("model.t1c", return_state=True)
 output, state = executor(input_tensor, state)
@@ -965,14 +984,14 @@ output, state = executor(input_tensor, state)
 
 ---
 
-### Serialization (re-exported from t1c.ir)
+### Serialization (re-exported from talon.ir)
 
 #### `read(path) → Graph`
 
-Read a T1C-IR graph from HDF5 file.
+Read a TALON IR graph from HDF5 file.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 graph = sdk.read("model.t1c")
 ```
@@ -981,12 +1000,167 @@ graph = sdk.read("model.t1c")
 
 #### `write(path, graph)`
 
-Write a T1C-IR graph to HDF5 file.
+Write a TALON IR graph to HDF5 file.
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 sdk.write("model.t1c", graph)
+```
+
+---
+
+### Energy Module
+
+#### `estimate_energy(graph, spike_rate=0.1, timesteps=100) -> EnergyEstimate`
+
+Estimate energy consumption using a MAC-based cost model (45nm process).
+
+**Parameters:**
+- `graph` (`talon.ir.Graph`): Graph to estimate
+- `spike_rate` (float): Average LIF spike rate (0.0-1.0)
+- `timesteps` (int): Number of timesteps per inference
+
+**Returns:**
+- `EnergyEstimate` with `total_uj`, `mac_energy_uj`, `spike_energy_uj`, `memory_energy_uj`, `per_layer`
+
+**Example:**
+```python
+from talon import sdk
+
+est = sdk.estimate_energy(graph, spike_rate=0.1, timesteps=100)
+print(f"Total: {est.total_uj:.4f} uJ")
+print(f"MACs: {est.mac_count:,}, Spikes: {est.spike_count:,}")
+```
+
+#### Device-Specific Energy Presets (via talon.backend)
+
+The backend profiler supports device-specific energy coefficients:
+
+```python
+from talon.backend import get_backend, ENERGY_PRESETS, get_energy_preset
+
+# Available presets
+print(list(ENERGY_PRESETS.keys()))
+# ['45nm_cmos', 'zynq_7020', 'zynq_us_plus', 'neuromorphic_int8', 't1c_asic_target']
+
+cpu = get_backend("cpu")
+profile = cpu.profile(graph, n_steps=10, energy_preset="zynq_us_plus")
+print(profile.summary())  # Formatted report with MAC/spike/SRAM breakdown
+```
+
+Each preset provides `mac_pj`, `spike_pj`, `sram_read_pj`, `sram_write_pj` coefficients. All energy values are **estimates** based on analytical models, not live hardware measurement.
+
+---
+
+### Pipeline Module
+
+#### `run_pipeline(path, config=None) -> PipelineResult`
+
+Run the full deployment pipeline: load -> lint -> analyze -> partition -> compile -> simulate -> report.
+
+**Parameters:**
+- `path` (str): Path to .t1c file
+- `config` (`PipelineConfig`): Pipeline configuration
+
+**Returns:**
+- `PipelineResult` with `success`, `errors`, `analysis`, `simulation`, `energy`
+
+**Example:**
+```python
+from talon import sdk
+
+result = sdk.run_pipeline("model.t1c", config=sdk.PipelineConfig(
+    target="cpu", timesteps=100, partition=True, num_cores=4
+))
+
+if result.success:
+    print(f"Nodes: {result.analysis.node_count}")
+    print(f"Energy: {result.energy['total_uj']:.4f} uJ")
+```
+
+---
+
+### Graph Partitioning & Hardware Mapping (from talon.graph)
+
+#### `partition(graph, hw_spec, algorithm="greedy") -> Graph`
+
+Partition a graph across hardware cores.
+
+**Parameters:**
+- `graph` (`talon.ir.Graph`): Graph to partition
+- `hw_spec` (`HardwareSpec`): Hardware constraints
+- `algorithm` (str): "greedy", "edgemap", or "spectral"
+
+**Returns:**
+- Graph with `partition_metadata` populated
+
+**Example:**
+```python
+from talon import sdk
+
+hw = sdk.HardwareSpec(max_neurons_per_core=256, num_cores=64, sram_bytes_per_core=65536)
+partitioned = sdk.partition(graph, hw, algorithm="greedy")
+placed = sdk.place(partitioned, hw)
+routed = sdk.route(partitioned, hw)
+resources = sdk.allocate(partitioned, hw)
+
+print(f"Cores used: {partitioned.partition_metadata['num_cores_used']}")
+print(f"Fits hardware: {resources.fits_hardware}")
+```
+
+---
+
+### Backend Compilation & Simulation (from talon.backend)
+
+#### `get_backend(name) -> BackendBase`
+
+Get a registered backend by name (e.g., "cpu", "fpga").
+
+**Example:**
+```python
+from talon import sdk
+
+be = sdk.get_backend("cpu")
+validation = be.validate(graph)
+descriptor = be.compile(graph)
+result = be.simulate(graph, n_steps=100)
+profile = be.profile(graph, n_steps=100)
+
+print(f"Valid: {validation.is_valid}")
+print(f"Latency: {profile.total_latency_us:.1f} us")
+print(f"Energy: {profile.energy_estimate_uj:.4f} uJ")
+```
+
+---
+
+### Event I/O & Streaming (from talon.io)
+
+The SDK re-exports all I/O modules for event camera data processing:
+
+```python
+from talon import sdk
+
+# Event streaming with buffered reader
+reader = sdk.BufferedEventReader(capacity=100_000)
+
+# Neural encoding
+from talon.io.encoding import rate_encode, latency_encode, delta_encode
+
+# Format conversion (vectorized, >5M events/sec)
+from talon.io.formats import decode_evt2, decode_evt3
+
+# Sensor file I/O
+from talon.io.dvs import read_prophesee, read_iniVation
+
+# AEDAT4 frame unpacking
+from talon.io.aedat4 import unpack_frames
+
+# Multi-sensor synchronization
+from talon.io.sync import align_sensors, merge_events
+
+# UDP event streaming (10G ethernet)
+from talon.io.ethernet import pack_events_udp, udp_event_receiver
 ```
 
 ---
@@ -1101,11 +1275,11 @@ class LintIssue:
 ## Full API Reference
 
 ```python
-from t1c import sdk
+from talon import sdk
 
 # Access via sdk.*, e.g. sdk.analyze_graph, sdk.read, sdk.to_ir
 # Full API (conceptual; use sdk.xxx in code):
-from t1c.sdk import (
+from talon.sdk import (
     # Version
     __version__, get_versions, info,
     
@@ -1137,52 +1311,92 @@ from t1c.sdk import (
     inspect_node, trace_path, extract_subgraph,
     find_pattern, get_node_statistics,
     
-    # t1c.ir: Core Primitives
+    # talon.ir: Core Primitives
     Graph, Input, Output,
     Affine, SpikingAffine,
-    Conv2d, SepConv2d,
+    Conv1d, Conv2d, SepConv2d,
     MaxPool2d, AvgPool2d, Upsample,
     Flatten, LIF, Skip,
     
-    # t1c.ir: ANN Activations (for hybrid architectures)
+    # talon.ir: ANN Activations (for hybrid architectures)
     ReLU, Sigmoid, Tanh, Softmax, GELU, ELU, PReLU,
     
-    # t1c.ir: Normalization
+    # talon.ir: Normalization
     BatchNorm1d, BatchNorm2d, LayerNorm,
     
-    # t1c.ir: Regularization
+    # talon.ir: Regularization
     Dropout,
     
-    # t1c.ir: Hybrid Architecture
+    # talon.ir: Hybrid Architecture
     HybridRegion, NeuronMode,
     
-    # t1c.ir: Types and Enums
+    # talon.ir: Spiking Convolutions
+    SConv, SDConv, SGhostConv, IF,
+    
+    # talon.ir: Ghost / Detect
+    ChannelSplit, Concat,
+    SGhostEncoderLite, GhostBasicBlock1, GhostBasicBlock2,
+    SDDetect, DFLDecode, Dist2BBox, NMS,
+    
+    # talon.ir: Types and Enums
     Edges, Nodes, Shape,
     SkipType, SpikeMode, UpsampleMode,
     
-    # t1c.ir: Registry
+    # talon.ir: Registry
     str_to_node, register_node, list_primitives,
     
-    # t1c.ir: Serialization
+    # talon.ir: Serialization
     read, write, read_version, T1CFormatError,
     
-    # t1c.bridge: Export/Import
-    to_ir, torch_to_ir, T1CExporter,
+    # talon.bridge: Export/Import
+    to_ir, torch_to_ir, TALONExporter,
     ir_to_torch, from_ir, load,
     
-    # t1c.bridge: Executor
+    # talon.bridge: Executor
     GraphExecutor, LIFModule, SkipModule,
+    ChannelSplitModule, ConcatModule,
+    SGhostConvModule, SGhostEncoderLiteModule,
+    GhostBasicBlock1Module, GhostBasicBlock2Module,
+    SDDetectModule, DFLDecodeModule, Dist2BBoxModule, NMSModule,
     
-    # t1c.bridge: Graph utilities
+    # talon.bridge: Graph utilities
     validate_graph, has_cycles, get_disconnected_nodes,
     get_topological_order, get_input_nodes, get_output_nodes,
     
-    # t1c.viz: Graph visualization
+    # talon.viz: Graph visualization
     visualize, export_html, graph_to_dict, render_html,
     
-    # t1c.viz: Spike visualization
+    # talon.viz: Spike visualization
     plot_events, export_events_html, plot_frames,
     events_to_frames, events_to_grid, events_to_raster,
     TONIC_AVAILABLE, PIL_AVAILABLE,
+    
+    # talon.graph: Partitioning, Routing, Placement
+    HardwareSpec, partition, partition_edgemap, partition_spectral,
+    partition_greedy, route, RoutingTable,
+    allocate, ResourceMap, CoreBudget,
+    place, PlacementResult,
+    
+    # talon.backend: Compilation and Simulation
+    BackendBase, get_backend, register_backend, list_backends,
+    query_backends, CompileConfig, HardwareDescriptor,
+    BackendCapabilities, ValidationResult,
+    SimulationResult, ProfileResult,
+    run_graph, RunResult,
+    
+    # talon.io: Event Streaming, Encoding, Format Conversion
+    streaming, formats, encoding, sync, ethernet, dvs, aedat4,
+    BufferedEventReader, EventBuffer,
+    generate_random_events, EVENT_DTYPE,
+    
+    # talon.backend: Energy Presets
+    ENERGY_PRESETS, get_energy_preset,
+    
+    # talon.io: Throughput Benchmarking
+    throughput,
+    
+    # SDK Energy and Pipeline
+    estimate_energy, EnergyEstimate, ENERGY_TABLE,
+    run_pipeline, PipelineConfig, PipelineResult,
 )
 ```
