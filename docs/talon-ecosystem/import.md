@@ -4,12 +4,12 @@ sidebar_position: 7
 
 # Import Guide
 
-Convert T1C-IR graphs back to executable PyTorch modules using t1c.bridge.
+Convert TALON IR graphs back to executable PyTorch modules using talon.bridge.
 
 ## Basic Import
 
 ```python
-from t1c import ir, bridge
+from talon import ir, bridge
 
 # Load from file
 graph = ir.read('model.t1c')
@@ -45,7 +45,7 @@ print(state.keys())  # dict_keys(['lif1', 'lif2'])
 
 ## Using snnTorch Wrapper
 
-If using the snnTorch fork (wrappers use t1c.ir and t1c.bridge under the hood):
+If using the snnTorch fork (wrappers use talon.ir and talon.bridge under the hood):
 
 ```python
 from snntorch.import_t1cir import import_from_ir
@@ -58,10 +58,10 @@ executor = import_from_ir('model.t1c', return_state=True)
 The imported module is a `GraphExecutor` instance:
 
 ```python
-from t1c.bridge import GraphExecutor
+from talon.bridge import GraphExecutor
 
 executor = bridge.ir_to_torch(graph, return_state=True)
-print(type(executor))  # <class 't1c.bridge.executor.GraphExecutor'>
+print(type(executor))  # <class 'talon.bridge.executor.GraphExecutor'>
 
 # Access submodules
 for name, module in executor.named_children():
@@ -84,7 +84,7 @@ output: Identity
 The LIF neuron is imported as `LIFModule`:
 
 ```python
-from t1c.bridge import LIFModule
+from talon.bridge import LIFModule
 
 # Access parameters
 lif = executor.lif1
@@ -147,7 +147,7 @@ executor = bridge.ir_to_torch(
 For more control, use the module-level functions:
 
 ```python
-from t1c.bridge import from_ir, GraphExecutor
+from talon.bridge import from_ir, GraphExecutor
 
 # Get dict of modules
 modules = from_ir(graph)
@@ -166,22 +166,23 @@ executor = GraphExecutor(
 Convert individual nodes:
 
 ```python
-from t1c.bridge import node_to_module
+from talon.bridge import node_to_module
 
 # Convert single node
 lif_node = graph.nodes['lif1']
 lif_module = node_to_module(lif_node)
-print(type(lif_module))  # <class 't1c.bridge.from_ir.LIFModule'>
+print(type(lif_module))  # <class 'talon.bridge.from_ir.LIFModule'>
 ```
 
 ## Supported Nodes
 
-| T1C-IR | PyTorch | Notes |
+| TALON IR | PyTorch | Notes |
 |--------|---------|-------|
 | Input | nn.Identity | Graph marker |
 | Output | nn.Identity | Graph marker |
 | Affine | nn.Linear | |
 | SpikingAffine | nn.Linear | Quantization hints in metadata |
+| Conv1d | nn.Conv1d | 1D temporal convolution |
 | Conv2d | nn.Conv2d | |
 | Flatten | nn.Flatten | |
 | MaxPool2d | nn.MaxPool2d | |
@@ -190,13 +191,38 @@ print(type(lif_module))  # <class 't1c.bridge.from_ir.LIFModule'>
 | SepConv2d | SepConv2dModule | Preserves identity for round-trip |
 | Skip | SkipModule | Preserves skip_type |
 | LIF | LIFModule | Stateful neuron |
+| ReLU | nn.ReLU | Supports negative_slope (LeakyReLU) |
+| Sigmoid | nn.Sigmoid | |
+| Tanh | nn.Tanh | |
+| Softmax | nn.Softmax | Preserves dim |
+| GELU | nn.GELU | Preserves approximate flag |
+| ELU | nn.ELU | Preserves alpha |
+| PReLU | nn.PReLU | Preserves learned weight |
+| BatchNorm1d | nn.BatchNorm1d | Preserves running stats |
+| BatchNorm2d | nn.BatchNorm2d | Preserves running stats |
+| LayerNorm | nn.LayerNorm | |
+| Dropout | nn.Dropout | Preserves p, no-op in eval |
+| HybridRegion | nn.Identity | ANN/SNN boundary marker |
+| ChannelSplit | ChannelSplitModule | Multi-output channel split |
+| Concat | ConcatModule | Channel concatenation |
+| SGhostConv | SGhostConvModule | Primary + cheap depthwise concat |
+| SGhostEncoderLite | SGhostEncoderLiteModule | Ghost stem encoder |
+| GhostBasicBlock1 | GhostBasicBlock1Module | CSP-ELAN backbone (stride-2) |
+| GhostBasicBlock2 | GhostBasicBlock2Module | CSP-ELAN FPN head |
+| SDDetect | SDDetectModule | Per-scale detection head |
+| DFLDecode | DFLDecodeModule | DFL box decoder |
+| Dist2BBox | Dist2BBoxModule | Distance to bounding box |
+| NMS | NMSModule | Non-Maximum Suppression |
+| SConv | nn.Conv2d | Spiking standard conv |
+| SDConv | nn.Conv2d | Spiking depthwise conv |
+| IF | IFModule | Integrate-and-fire (no leak) |
 
 ## SepConv2dModule
 
-Depthwise separable convolution preserving T1C-IR identity for round-trip:
+Depthwise separable convolution preserving TALON IR identity for round-trip:
 
 ```python
-from t1c.bridge import SepConv2dModule
+from talon.bridge import SepConv2dModule
 
 # Structure: depthwise (groups=in_ch) -> pointwise (1x1)
 sepconv = executor.sepconv1
@@ -205,7 +231,7 @@ print(f"Pointwise: {sepconv.pointwise}")
 print(f"Stride: {sepconv.stride}")
 ```
 
-The module stores all configuration needed for export back to T1C-IR:
+The module stores all configuration needed for export back to TALON IR:
 
 - `depthwise`: nn.Conv2d with groups=in_channels
 - `pointwise`: nn.Conv2d with 1x1 kernel
@@ -216,7 +242,7 @@ The module stores all configuration needed for export back to T1C-IR:
 The Skip primitive is imported as `SkipModule`, which preserves the `skip_type` for proper merge behavior:
 
 ```python
-from t1c.bridge import SkipModule
+from talon.bridge import SkipModule
 
 skip = SkipModule(skip_type='residual')
 print(skip.skip_type)  # 'residual'
@@ -337,10 +363,17 @@ print(f"Expected: {expected_shape}")
 If a node type isn't supported:
 
 ```python
-from t1c.bridge import node_to_module
+from talon.bridge import node_to_module
 
 # Returns None for unsupported types
 result = node_to_module(unknown_node)
 if result is None:
     print(f"Unsupported: {type(unknown_node)}")
 ```
+
+## Tutorials
+
+- [Tutorial: Bridge](./tutorial/tutorial_bridge) — Step-by-step import with stateful LIF and CyclicGraphExecutor
+- [Tutorial: Hardware Mapping](./tutorial/tutorial_hardware_mapping) — Partition, allocate, route, and place imported graphs
+- [Tutorial: snnTorch Integration](./tutorial/tutorial_snntorch_integration) — snnTorch import/export round-trip
+- [Tutorial: End-to-End Pipeline](./tutorial/tutorial_end_to_end) — Full import through simulation pipeline

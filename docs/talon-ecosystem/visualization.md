@@ -4,18 +4,21 @@ sidebar_position: 8
 
 # Visualization Guide
 
-Generate interactive visualizations of T1C-IR graphs and event-based data using T1C-Viz (t1c.viz).
+Generate interactive visualizations of TALON IR graphs and event-based data using talon.viz (talon.viz).
 
-## Interactive Tutorial
+## Tutorials
 
-For a hands-on introduction with step-by-step explanations, see the [T1C-Viz Tutorial Notebook](./example_notebooks/tutorial_t1cviz.ipynb).
+- [Tutorial: T1CViz](./tutorial/tutorial_t1cviz) — Step-by-step guide with inline code and output
+- [Tutorial: Event I/O](./tutorial/tutorial_event_io) — Neural encoding, HDF5, throughput benchmarking
+
+For local notebook execution, see the [example_notebooks](./example_notebooks/) directory.
 
 ## Quick Start
 
 ### Graph Visualization
 
 ```python
-from t1c import ir, viz
+from talon import ir, viz
 
 # Load graph
 graph = ir.read('model.t1c')
@@ -28,7 +31,7 @@ viz.visualize(graph)
 
 ```python
 import tonic
-from t1c import viz
+from talon import viz
 
 # Load event data from Tonic dataset
 dataset = tonic.datasets.NMNIST("./data", train=True)
@@ -49,7 +52,19 @@ Outside Jupyter, opens in default browser:
 
 ```python
 viz.visualize(graph, title="My SNN Model")
-# Output: Visualization written to: C:\...\T1C-Viz\My_SNN_Model_xxx.html
+# Output: Visualization written to: C:\...\talon.viz\My_SNN_Model_xxx.html
+```
+
+### Localhost Serving (plotly-style)
+
+Serve via a local HTTP server to avoid browser `file://` restrictions:
+
+```python
+viz.visualize(graph, title="My SNN", serve=True)
+# Output: Serving visualization at: http://127.0.0.1:54321/My_SNN_xxx.html
+
+# Shut down all running servers
+viz.stop_servers()
 ```
 
 ### Jupyter Display
@@ -58,6 +73,8 @@ In Jupyter notebooks, displays as embedded iframe:
 
 ```python
 viz.visualize(graph, title="My SNN", width=960, height=640)
+# With localhost serving in Jupyter:
+viz.visualize(graph, serve=True, port=8050)
 ```
 
 ### Export to File
@@ -108,20 +125,45 @@ Each primitive type has a distinct color:
 | Output | Light red | #ffcdd2 |
 | Affine | Light blue | #bbdefb |
 | SpikingAffine | Light purple | #e1bee7 |
+| Conv1d | Light orange | #ffe0b2 |
 | Conv2d | Light orange | #ffe0b2 |
 | Flatten | Light gray | #e0e0e0 |
 | LIF | Light cyan | #b2ebf2 |
 | MaxPool2d | Light brown | #d7ccc8 |
+| AvgPool2d | Light brown | #d7ccc8 |
+| Upsample | Light brown | #d7ccc8 |
 | SepConv2d | Light pink | #f8bbd9 |
 | Skip | Light yellow | #fff9c4 |
+| ReLU | Light teal | #b2dfdb |
+| Sigmoid | Light teal | #b2dfdb |
+| Tanh | Light teal | #b2dfdb |
+| Softmax | Light teal | #b2dfdb |
+| GELU | Light teal | #b2dfdb |
+| ELU | Light teal | #b2dfdb |
+| PReLU | Light teal | #b2dfdb |
+| BatchNorm1d | Light indigo | #c5cae9 |
+| BatchNorm2d | Light indigo | #c5cae9 |
+| LayerNorm | Light indigo | #c5cae9 |
+| Dropout | Light gray | #f5f5f5 |
+| HybridRegion | Light amber | #ffecb3 |
+| ChannelSplit | Lime | #CDDC39 |
+| Concat | Light green | #8BC34A |
+| SGhostConv | Green 400 | #66BB6A |
+| SGhostEncoderLite | Green 600 | #43A047 |
+| GhostBasicBlock1 | Green 800 | #2E7D32 |
+| GhostBasicBlock2 | Green 700 | #388E3C |
+| SDDetect | Red 600 | #e53935 |
+| DFLDecode | Red 800 | #c62828 |
+| Dist2BBox | Red 400 | #ef5350 |
+| NMS | Dark red | #d32f2f |
 
 ## Low-Level API
 
 For custom rendering:
 
 ```python
-from t1c import viz
-from t1c.viz import graph_to_dict, render_html
+from talon import viz
+from talon.viz import graph_to_dict, render_html
 
 # Convert graph to JSON-serializable dict
 data = graph_to_dict(graph)
@@ -183,8 +225,8 @@ Visualizations are stored in:
 
 ```python
 print(viz.TEMP_GRAPHS_DIR)
-# Windows: C:\Users\<user>\AppData\Local\Temp\t1cviz
-# Linux: /tmp/t1cviz
+# Windows: C:\Users\<user>\AppData\Local\Temp\talon-viz
+# Linux: /tmp/talon-viz
 ```
 
 ## Multiple Graphs
@@ -246,7 +288,7 @@ Options: `'TB'` (top-bottom), `'LR'` (left-right), `'BT'`, `'RL'`
 
 ## Hierarchical Visualization (Pan In/Out)
 
-T1C-Viz automatically detects architectural patterns and groups them for cleaner visualization.
+talon.viz automatically detects architectural patterns and groups them for cleaner visualization.
 
 ### Supported Patterns
 
@@ -310,7 +352,7 @@ The bypass path uses `Skip(skip_type='residual')` which performs element-wise ad
 ### Pattern Detection API
 
 ```python
-from t1c.viz.patterns import (
+from talon.viz.patterns import (
     detect_all_patterns,
     detect_repconv_patterns,
     detect_spp_patterns,
@@ -339,7 +381,7 @@ Visualize event-based neuromorphic data compatible with the Tonic library.
 Event visualization uses optimized processing:
 
 ```python
-from t1c import viz
+from talon import viz
 
 # Check available backends
 print(f"Tonic available: {viz.TONIC_AVAILABLE}")  # Numba-accelerated
@@ -356,7 +398,7 @@ print(f"Pillow available: {viz.PIL_AVAILABLE}")   # Required for images
 For best performance, install with Tonic support:
 
 ```bash
-pip install t1c-viz[tonic]
+pip install talon-viz[tonic]
 ```
 
 When Tonic is available, `events_to_frames` uses Tonic's Numba-accelerated `ToFrame` transform automatically.
@@ -377,7 +419,7 @@ Opens interactive visualization in browser:
 
 ```python
 import tonic
-from t1c import viz
+from talon import viz
 
 dataset = tonic.datasets.DVSGesture("./data", train=True)
 events, label = dataset[0]
@@ -420,8 +462,8 @@ The spike visualization includes:
 For custom processing:
 
 ```python
-from t1c import viz
-# Or: from t1c.viz import events_to_frames, events_to_grid, events_to_raster
+from talon import viz
+# Or: from talon.viz import events_to_frames, events_to_grid, events_to_raster
 events_to_frames = viz.events_to_frames
 events_to_grid = viz.events_to_grid
 events_to_raster = viz.events_to_raster
@@ -438,6 +480,64 @@ grid = events_to_grid(events, sensor_size=(34, 34), n_bins=5)
 raster = events_to_raster(events, n_neurons=1156, time_bins=100)
 # Shape: (time_bins, n_neurons)
 ```
+
+---
+
+## Partition and Schedule Visualization
+
+After partitioning a graph onto hardware cores, visualize the assignment and execution schedule.
+
+### Partition View
+
+Nodes retain their **type-based color** (blue for Conv, green for LIF, orange for Affine). Core assignment is shown by **colored dashed outlines** around each node.
+
+```python
+from talon.viz import visualize_partitioned
+from talon.graph import HardwareSpec, partition
+
+hw = HardwareSpec.zynq_us_plus()
+graph = partition(graph, hw)
+
+visualize_partitioned(graph, "partitioned.html")
+```
+
+Features:
+- Node colors = primitive type (same as unpartitioned view)
+- Dashed borders = core assignment (one color per core)
+- Cross-core edges drawn as dashed lines
+- Legends for both node types and core boundaries
+- Raises `ValueError` if a primitive could not fit any core
+
+### Execution Schedule
+
+Timeline view of which nodes execute on which core, with timing information.
+
+```python
+from talon.viz import visualize_execution_schedule
+from talon.backend import get_backend
+
+cpu = get_backend("cpu")
+profile = cpu.profile(graph, n_steps=10)
+
+visualize_execution_schedule(
+    graph,
+    "schedule.html",
+    profile_result=profile,  # optional: adds latency labels
+)
+```
+
+Features:
+- Per-core rows showing node execution order
+- Estimated latency per node (when profile_result is provided)
+- Idle time bars (proportional to slowest core)
+- Cross-core data dependency annotations
+- Summary with total cores, nodes, latency, and critical path
+
+### Spike Raster Axis Labels
+
+Spike raster plots now include numeric axis labels:
+- **X-axis**: Time with auto-scaled units (s, ms, or us depending on duration)
+- **Y-axis**: Neuron index
 
 ---
 
@@ -466,7 +566,7 @@ If iframe doesn't show in Jupyter:
 
 ```python
 # Check if IPython is available
-from t1c import viz
+from talon import viz
 print(f"IPython available: {getattr(viz, '_HAS_IPYTHON', 'N/A')}")
 
 # Force browser display
@@ -490,7 +590,7 @@ If event animation or grid frames show empty boxes:
 
 1. **Check PIL is installed**: Pillow is required for image encoding
    ```python
-   from t1c import viz
+   from talon import viz
    print(viz.PIL_AVAILABLE)  # Should be True
    ```
 

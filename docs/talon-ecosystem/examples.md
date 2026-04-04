@@ -4,7 +4,24 @@ sidebar_position: 9
 
 # Examples
 
-Real-world T1C-IR patterns and architectures.
+Real-world TALON IR patterns and architectures. For step-by-step walkthroughs, see the [Tutorials](#tutorials) section below.
+
+## Tutorials
+
+| Tutorial | Topics |
+|----------|--------|
+| [TALON IR Basics](./tutorial/tutorial_t1cir_basics) | Primitives, graphs, serialization, ghost & detection |
+| [T1CViz](./tutorial/tutorial_t1cviz) | Graph visualization, event processing, pattern detection |
+| [TALON SDK](./tutorial/tutorial_talon) | Analysis, profiling, linting, fingerprinting |
+| [Bridge](./tutorial/tutorial_bridge) | Export/import, stateful LIF, CyclicGraphExecutor |
+| [Ghost & Detection](./tutorial/tutorial_ghost_detection) | GhostNet architecture, detection pipeline |
+| [Hardware Mapping](./tutorial/tutorial_hardware_mapping) | Partition, allocate, route, place |
+| [Backend](./tutorial/tutorial_backend) | Simulate, profile, energy presets, FPGA |
+| [Event I/O](./tutorial/tutorial_event_io) | Neural encoding, HDF5, throughput |
+| [snnTorch Integration](./tutorial/tutorial_snntorch_integration) | snnTorch export/import round-trip with SDK analysis |
+| [End-to-End Pipeline](./tutorial/tutorial_end_to_end) | Full workflow: model → export → analyze → partition → simulate → profile |
+
+---
 
 ## Simple Feedforward SNN
 
@@ -12,7 +29,7 @@ Two-layer fully connected SNN for classification.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([784])),
@@ -56,7 +73,7 @@ Conv-pool-flatten-FC architecture for image classification.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([1, 32, 32])),  # 1-channel 32x32
@@ -114,7 +131,7 @@ Multi-layer feedforward for complex classification.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([784])),
@@ -174,7 +191,7 @@ Residual architecture with skip connection.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([128])),
@@ -218,7 +235,7 @@ Efficient convolution using SepConv2d.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 in_ch, out_ch = 32, 64
 
@@ -258,7 +275,7 @@ Multi-branch architecture with parallel 3x3, 1x1, and identity paths.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 ch = 8
 
@@ -324,7 +341,7 @@ Multi-scale feature extraction using parallel MaxPool2d operations. SPP is a des
 ```python
 # SPP = concat(original, pool_5x5, pool_9x9, pool_13x13)
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([64, 20, 20])),
@@ -391,7 +408,7 @@ Efficient sequential alternative to SPP. Applies the same kernel repeatedly.
 ```python
 # SPPF = concat(x, pool(x), pool(pool(x)), pool(pool(pool(x))))
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([64, 20, 20])),
@@ -451,7 +468,7 @@ Average pooling for smoother downsampling.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([32, 16, 16])),
@@ -494,7 +511,7 @@ Using SpikingAffine for quantization hints.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([784])),
@@ -548,7 +565,7 @@ Encoder-SNN-Decoder pattern for hybrid processing. ANN layers handle preprocessi
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 # Weight placeholders (in practice, these come from trained models)
 w_enc = np.random.randn(256, 784).astype(np.float32)
@@ -615,7 +632,7 @@ edges = [
 graph = ir.Graph(nodes=nodes, edges=edges)
 
 # Visualize to see the hybrid structure
-from t1c import viz
+from talon import viz
 viz.visualize(graph, title="Hybrid ANN-SNN Architecture")
 ```
 
@@ -625,7 +642,7 @@ Batch normalization for training stability.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([784])),
@@ -679,7 +696,7 @@ Convolutional architecture with batch normalization.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([3, 32, 32])),  # RGB 32x32
@@ -728,7 +745,7 @@ LayerNorm for attention-based architectures.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 nodes = {
     'input': ir.Input(np.array([256])),  # 256-dim embedding
@@ -778,7 +795,7 @@ Complete workflow from training to deployment.
 import torch
 import torch.nn as nn
 import snntorch as snn
-from t1c import ir, bridge, viz
+from talon import ir, bridge, viz
 
 # 1. Define and train model
 class PokerSNN(nn.Module):
@@ -805,7 +822,7 @@ class PokerSNN(nn.Module):
 model = PokerSNN()
 # ... training code ...
 
-# 2. Export to T1C-IR
+# 2. Export to TALON IR
 sample = torch.randn(1, 1156)
 graph = bridge.to_ir(model, sample)
 
@@ -822,4 +839,203 @@ output, state = executor(test_input, {})
 print(f"Output shape: {output.shape}")  # torch.Size([1, 4])
 ```
 
+## Ghost Block (SU-YOLO Mid-Ghost)
+
+GhostBasicBlock1 for backbone feature extraction with stride-2 downsampling.
+
+```python
+import numpy as np
+from talon import ir
+
+C_in, C_out = 32, 64
+Cp0 = C_out // 2
+
+gbb1 = ir.GhostBasicBlock1(
+    cv0_primary_weight=np.random.randn(Cp0, C_in, 3, 3).astype(np.float32),
+    cv0_cheap_weight=np.random.randn(Cp0, 1, 3, 3).astype(np.float32),
+    cvres_primary_weight=np.random.randn(C_out // 4, C_out, 1, 1).astype(np.float32),
+    cvres_cheap_weight=np.random.randn(C_out // 4, 1, 3, 3).astype(np.float32),
+    cv2_primary_weight=np.random.randn(Cp0, Cp0, 1, 1).astype(np.float32),
+    cv2_cheap_weight=np.random.randn(Cp0, 1, 3, 3).astype(np.float32),
+    stride=2,
+)
+
+nodes = {
+    'input': ir.Input(np.array([C_in, 40, 40])),
+    'ghost_bb1': gbb1,
+    'lif': ir.LIF(
+        tau=np.ones(C_out) * 10.0,
+        r=np.ones(C_out) * 10.0,
+        v_leak=np.zeros(C_out),
+        v_threshold=np.ones(C_out)
+    ),
+    'output': ir.Output(np.array([C_out, 20, 20]))
+}
+edges = [
+    ('input', 'ghost_bb1'),
+    ('ghost_bb1', 'lif'),
+    ('lif', 'output')
+]
+
+graph = ir.Graph(nodes=nodes, edges=edges)
+# Input: [32, 40, 40] -> GhostBasicBlock1 -> [64, 20, 20]
+```
+
+## Detection Pipeline (SDDetect → DFLDecode → Dist2BBox → NMS)
+
+Full SU-YOLO detection post-processing pipeline.
+
+```python
+import numpy as np
+from talon import ir
+
+# Per-scale detection head
+detect = ir.SDDetect(
+    num_classes=80,
+    reg_max=16,
+    stride=8,
+    cv2_w0=np.random.randn(64, 64, 3, 3).astype(np.float32),
+    cv2_b0=np.zeros(64, dtype=np.float32),
+    cv2_w1=np.random.randn(64, 64, 3, 3).astype(np.float32),
+    cv2_b1=np.zeros(64, dtype=np.float32),
+    cv2_w2=np.random.randn(64, 64, 1, 1).astype(np.float32),
+    cv2_b2=np.zeros(64, dtype=np.float32),
+    cv3_w0=np.random.randn(80, 64, 3, 3).astype(np.float32),
+    cv3_b0=np.zeros(80, dtype=np.float32),
+    cv3_w1=np.random.randn(80, 80, 3, 3).astype(np.float32),
+    cv3_b1=np.zeros(80, dtype=np.float32),
+    cv3_w2=np.random.randn(80, 80, 1, 1).astype(np.float32),
+    cv3_b2=np.zeros(80, dtype=np.float32),
+)
+
+# Post-processing chain
+dfl = ir.DFLDecode(reg_max=16)
+d2b = ir.Dist2BBox(stride=8)
+nms = ir.NMS(score_threshold=0.25, iou_threshold=0.45, max_detections=300)
+
+nodes = {
+    'input': ir.Input(np.array([64, 80, 80])),
+    'detect': detect,
+    'dfl': dfl,
+    'd2b': d2b,
+    'nms': nms,
+    'output': ir.Output(np.array([300, 85]))
+}
+edges = [
+    ('input', 'detect'),
+    ('detect', 'dfl'),
+    ('dfl', 'd2b'),
+    ('d2b', 'nms'),
+    ('nms', 'output')
+]
+
+graph = ir.Graph(nodes=nodes, edges=edges)
+```
+
+## Hardware Partitioning and Placement
+
+Partition a graph across neuromorphic cores and optimize placement.
+
+```python
+import numpy as np
+from talon import ir
+from talon.graph import HardwareSpec, partition, route, allocate, place
+
+# Build a simple SNN
+nodes = {
+    'input': ir.Input(np.array([784])),
+    'fc1': ir.Affine(
+        weight=np.random.randn(128, 784).astype(np.float32),
+        bias=np.zeros(128, dtype=np.float32)
+    ),
+    'lif1': ir.LIF(
+        tau=np.ones(128) * 10.0, r=np.ones(128) * 10.0,
+        v_leak=np.zeros(128), v_threshold=np.ones(128)
+    ),
+    'fc2': ir.Affine(
+        weight=np.random.randn(10, 128).astype(np.float32),
+        bias=np.zeros(10, dtype=np.float32)
+    ),
+    'lif2': ir.LIF(
+        tau=np.ones(10) * 10.0, r=np.ones(10) * 10.0,
+        v_leak=np.zeros(10), v_threshold=np.ones(10)
+    ),
+    'output': ir.Output(np.array([10]))
+}
+edges = [
+    ('input', 'fc1'), ('fc1', 'lif1'),
+    ('lif1', 'fc2'), ('fc2', 'lif2'),
+    ('lif2', 'output')
+]
+graph = ir.Graph(nodes=nodes, edges=edges)
+
+# Use a device preset
+hw = HardwareSpec.zynq_us_plus()
+
+# Full hardware mapping pipeline
+graph = partition(graph, hw)
+graph = route(graph, hw)
+resources = allocate(graph, hw)
+placement = place(graph, hw)
+
+print(f"Cores used: {graph.partition_metadata['num_cores_used']}")
+print(f"Fits hardware: {resources.fits_hardware}")
+print(f"Total hop distance: {placement.total_hops}")
+print(f"Placement improvement: {placement.improvement:.1f}%")
+```
+
+## Backend Compilation and Simulation
+
+Compile a graph and run CPU simulation with energy profiling.
+
+```python
+import numpy as np
+from talon import ir
+from talon.backend import get_backend
+
+# Build graph (reuse from above)
+graph = ir.read('model.t1c')
+
+# CPU backend
+cpu = get_backend("cpu")
+
+# Validate
+validation = cpu.validate(graph)
+print(f"Valid: {validation.is_valid}")
+
+# Compile to hardware descriptor
+descriptor = cpu.compile(graph)
+
+# Simulate for 10 timesteps
+result = cpu.simulate(graph, n_steps=10)
+
+# Profile with device-specific energy preset
+profile = cpu.profile(graph, n_steps=10, energy_preset="zynq_us_plus")
+print(profile.summary())
+```
+
+## Event I/O and Neural Encoding
+
+Process event camera data with talon.io.
+
+```python
+from talon.io import streaming, encoding, formats
+
+# Generate random events for testing
+events = streaming.generate_random_events(10_000, sensor_size=(32, 32))
+
+# Neural encoding: convert analog data to spike trains
+import numpy as np
+analog_data = np.random.randn(100).astype(np.float32)
+spikes = encoding.rate_encode(analog_data, n_steps=50)
+
+# Convert events to frame tensor for visualization
+frames = formats.events_to_frames(events, sensor_size=(32, 32), n_frames=10)
+print(f"Frame tensor shape: {frames.shape}")  # (10, 2, 32, 32)
+
+# Throughput benchmarking
+from talon.io.throughput import benchmark_throughput
+result = benchmark_throughput(n_events=1_000_000, sensor_size=(640, 480))
+print(result.summary())
+```
 

@@ -4,14 +4,14 @@ sidebar_position: 6
 
 # Export Guide
 
-Convert PyTorch and snnTorch models to T1C-IR graphs using t1c.bridge.
+Convert PyTorch and snnTorch models to TALON IR graphs using talon.bridge.
 
 ## Basic Export
 
 ```python
 import torch
 import torch.nn as nn
-from t1c import bridge
+from talon import bridge
 
 model = nn.Sequential(
     nn.Linear(784, 128),
@@ -59,7 +59,7 @@ graph = bridge.to_ir(model, sample)
 
 ### Using snnTorch Wrapper
 
-If using the snnTorch fork with T1C-IR support (wrappers use t1c.ir and t1c.bridge under the hood):
+If using the snnTorch fork with TALON IR support (wrappers use talon.ir and talon.bridge under the hood):
 
 ```python
 from snntorch.export_t1cir import export_to_ir
@@ -91,7 +91,7 @@ This converts `nn.Linear` layers to `SpikingAffine` with hardware hints.
 Override default conversion for specific module types:
 
 ```python
-from t1c import ir, bridge
+from talon import ir, bridge
 import numpy as np
 
 def my_linear_converter(module: nn.Linear) -> ir.Node:
@@ -112,14 +112,14 @@ custom_map = {
 graph = bridge.to_ir(model, sample, custom_map=custom_map)
 ```
 
-## T1CExporter Class
+## TALONExporter Class
 
 For advanced control, use the exporter class directly:
 
 ```python
-from t1c.bridge import T1CExporter
+from talon.bridge import TALONExporter
 
-exporter = T1CExporter(
+exporter = TALONExporter(
     spiking=True,
     spike_mode='binary',
     weight_bits=8,
@@ -131,7 +131,7 @@ graph = exporter.export(model, sample, custom_map=None)
 
 ## GraphExecutor Round-Trip
 
-When you import a T1C-IR graph using `bridge.ir_to_torch()`, you get a `GraphExecutor` which preserves the graph's structure. You can then export this back to T1C-IR, and **all topology is preserved** - including multi-branch skip connections.
+When you import a TALON IR graph using `bridge.ir_to_torch()`, you get a `GraphExecutor` which preserves the graph's structure. You can then export this back to TALON IR, and **all topology is preserved** - including multi-branch skip connections.
 
 ### Why This Matters
 
@@ -146,7 +146,7 @@ The exporter detects `GraphExecutor` instances and uses their stored edge list i
 ### Round-Trip Example
 
 ```python
-from t1c import ir, bridge
+from talon import ir, bridge
 
 # 1. Load graph with residual connections
 graph = ir.read("resnet_block.t1c")
@@ -165,7 +165,7 @@ for epoch in range(10):
         optimizer.step()
         optimizer.zero_grad()
 
-# 4. Export back to T1C-IR - topology preserved!
+# 4. Export back to TALON IR - topology preserved!
 sample = torch.randn(1, 784)
 trained_graph = bridge.to_ir(executor, sample)
 
@@ -186,11 +186,11 @@ print("Topology preserved!")
 | Weights and biases | Yes | Yes |
 | LIF parameters | Yes | Yes |
 
-### T1C-Bridge Module Conversion
+### talon.bridge Module Conversion
 
-For round-trip support, the exporter handles t1c.bridge modules:
+For round-trip support, the exporter handles talon.bridge modules:
 
-| T1C-Bridge Module | T1C-IR Node | Preserved |
+| talon.bridge Module | TALON IR Node | Preserved |
 |-------------------|------------|-----------|
 | `LIFModule` | `LIF` | tau, r, v_leak, v_threshold |
 | `SkipModule` | `Skip` | skip_type |
@@ -221,11 +221,12 @@ with torch.no_grad():
 
 ### 3. Module Conversion
 
-Each module is converted to its T1C-IR equivalent:
+Each module is converted to its TALON IR equivalent:
 
-| PyTorch | T1C-IR | Notes |
+| PyTorch | TALON IR | Notes |
 |---------|--------|-------|
 | nn.Linear | Affine (or SpikingAffine) | `spiking=True` for SpikingAffine |
+| nn.Conv1d | Conv1d | 1D temporal convolution |
 | nn.Conv2d | Conv2d | All params preserved |
 | nn.Flatten | Flatten | start_dim adjusted |
 | nn.MaxPool2d | MaxPool2d | All params preserved |
@@ -254,7 +255,9 @@ edges = [
 
 ### Fully Supported
 
+**Core SNN layers:**
 - `nn.Linear` → Affine / SpikingAffine
+- `nn.Conv1d` → Conv1d
 - `nn.Conv2d` → Conv2d
 - `nn.Flatten` → Flatten
 - `nn.MaxPool2d` → MaxPool2d
@@ -264,16 +267,46 @@ edges = [
 - `snn.Leaky` → LIF
 - `LIFModule` → LIF (round-trip)
 - `SkipModule` → Skip (preserves skip_type: residual/concatenate/passthrough)
+- `SepConv2dModule` → SepConv2d (round-trip, preserves all weights)
+
+**ANN activations (hybrid architectures):**
+- `nn.ReLU` → ReLU (with optional negative_slope for LeakyReLU)
+- `nn.Sigmoid` → Sigmoid
+- `nn.Tanh` → Tanh
+- `nn.Softmax` → Softmax
+- `nn.GELU` → GELU
+- `nn.ELU` → ELU
+- `nn.PReLU` → PReLU
+
+**Normalization layers:**
+- `nn.BatchNorm1d` → BatchNorm1d (preserves running stats)
+- `nn.BatchNorm2d` → BatchNorm2d (preserves running stats)
+- `nn.LayerNorm` → LayerNorm
+
+**Regularization:**
+- `nn.Dropout` → Dropout (preserved for architecture fidelity)
+
+**Hybrid markers:**
+- `HybridRegion` → HybridRegion (round-trip, marks ANN/SNN boundaries)
+
+**Ghost / Detect primitives (SU-YOLO Mid-Ghost, round-trip):**
+- `ChannelSplitModule` → ChannelSplit
+- `ConcatModule` → Concat
+- `SGhostConvModule` → SGhostConv
+- `SGhostEncoderLiteModule` → SGhostEncoderLite
+- `GhostBasicBlock1Module` → GhostBasicBlock1
+- `GhostBasicBlock2Module` → GhostBasicBlock2
+- `SDDetectModule` → SDDetect
+- `DFLDecodeModule` → DFLDecode
+- `Dist2BBoxModule` → Dist2BBox
+- `NMSModule` → NMS
 
 ### Partially Supported
 
 - `nn.Sequential` → Nodes chained automatically
-- `nn.ReLU` → Skipped (handled by LIF in SNNs)
-- `nn.Dropout` → Skipped (training-only)
 
 ### Not Supported
 
-- `nn.BatchNorm*` → Fold into preceding conv/linear
 - `nn.LSTM/GRU` → Use spiking equivalents
 - Custom modules → Provide custom_map converter
 
@@ -311,3 +344,10 @@ Ensure snnTorch version is compatible:
 import snntorch
 print(snntorch.__version__)  # Should be 0.9.x
 ```
+
+## Tutorials
+
+- [Tutorial: Bridge](./tutorial/tutorial_bridge) — Step-by-step export/import with stateful LIF and CyclicGraphExecutor
+- [Tutorial: Ghost & Detection](./tutorial/tutorial_ghost_detection) — GhostNet primitives and detection pipeline export
+- [Tutorial: snnTorch Integration](./tutorial/tutorial_snntorch_integration) — snnTorch model export/import round-trip
+- [Tutorial: End-to-End Pipeline](./tutorial/tutorial_end_to_end) — Full workflow from model to hardware simulation

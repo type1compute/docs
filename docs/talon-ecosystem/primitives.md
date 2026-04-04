@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Primitives Reference
 
-T1C-IR defines 22+ primitives for representing spiking neural networks and hybrid ANN-SNN architectures. Each primitive maps directly to hardware operations on Type 1 Compute chips.
+TALON IR defines 36 primitives for representing spiking neural networks and hybrid ANN-SNN architectures. Each primitive maps directly to hardware operations on Type 1 Compute chips.
 
 ## Primitive Overview
 
@@ -12,13 +12,17 @@ T1C-IR defines 22+ primitives for representing spiking neural networks and hybri
 |-----------|----------|-------------|
 | Affine | Linear | Linear transform y = Wx + b |
 | SpikingAffine | Linear | Quantized affine with spike hints |
+| Conv1d | Convolution | 1D convolution (temporal/sequential) |
 | Conv2d | Convolution | 2D convolution |
 | SepConv2d | Convolution | Depthwise separable convolution |
+| SConv | Convolution | Spiking standard 2D convolution (Conv2d alias with SNN semantics) |
+| SDConv | Convolution | Spiking depthwise 2D convolution (groups=in_channels) |
 | MaxPool2d | Spatial | 2D max pooling (downsampling) |
 | AvgPool2d | Spatial | 2D average pooling (downsampling) |
 | Upsample | Spatial | 2D upsampling (nearest/bilinear) |
 | Flatten | Reshape | Reshape to 1D |
 | LIF | Neuron | Leaky integrate-and-fire |
+| IF | Neuron | Integrate-and-fire (no leak) |
 | Skip | Skip | Residual/skip connection |
 | ReLU | ANN Activation | Rectified linear unit |
 | Sigmoid | ANN Activation | Logistic sigmoid |
@@ -32,6 +36,16 @@ T1C-IR defines 22+ primitives for representing spiking neural networks and hybri
 | LayerNorm | Normalization | Layer normalization |
 | Dropout | Regularization | Dropout regularization |
 | HybridRegion | Marker | ANN/SNN region marker |
+| ChannelSplit | Routing | Channel splitting for CSP-ELAN |
+| Concat | Routing | Channel concatenation |
+| SGhostConv | Ghost Conv | Spiking ghost convolution |
+| SGhostEncoderLite | Ghost Conv | Ghost encoder stem (Layer 0) |
+| GhostBasicBlock1 | Ghost Block | CSP-ELAN backbone (stride-2) |
+| GhostBasicBlock2 | Ghost Block | CSP-ELAN FPN head (no stride) |
+| SDDetect | Detection | Per-scale detection head |
+| DFLDecode | Detection | DFL box decoder |
+| Dist2BBox | Detection | Distance-to-bounding-box |
+| NMS | Detection | Non-Maximum Suppression (post-model) |
 
 ## Graph Containers
 
@@ -41,7 +55,7 @@ Marks the entry point of the graph.
 
 ```python
 import numpy as np
-from t1c import ir
+from talon import ir
 
 # Shape excludes batch dimension
 input_node = ir.Input(np.array([784]))          # 1D: 784 features
@@ -104,6 +118,25 @@ spiking_affine = ir.SpikingAffine(
 
 ## Convolution
 
+### Conv1d
+
+1D convolution for temporal and sequential data processing.
+
+```python
+# (out_channels, in_channels, kernel_size)
+W = np.random.randn(32, 16, 3).astype(np.float32)
+b = np.zeros(32, dtype=np.float32)
+
+conv = ir.Conv1d(
+    weight=W,
+    bias=b,
+    stride=1,
+    padding=1,
+    dilation=1,
+    groups=1
+)
+```
+
 ### Conv2d
 
 2D convolution with configurable stride, padding, dilation, and groups.
@@ -143,6 +176,41 @@ sepconv = ir.SepConv2d(
     stride=(1, 1),
     padding=(1, 1)
 )
+```
+
+### SConv
+
+Spiking Standard 2D Convolution — a `Conv2d` subclass with explicit SNN semantics. Functionally identical to `Conv2d` but marks the convolution as operating in a spiking domain, enabling the compiler to apply spike-aware optimizations.
+
+```python
+W = np.random.randn(64, 32, 3, 3).astype(np.float32)
+b = np.zeros(64, dtype=np.float32)
+
+sconv = ir.SConv(
+    weight=W,
+    bias=b,
+    stride=(1, 1),
+    padding=(1, 1)
+)
+```
+
+### SDConv
+
+Spiking Depthwise 2D Convolution — a `Conv2d` subclass where `groups=in_channels` is enforced. Each input channel is convolved independently with its own filter, standard in Ghost modules and MobileNet-style architectures.
+
+```python
+in_ch = 32
+# Depthwise: (in_ch, 1, kH, kW) with groups=in_ch
+W = np.random.randn(in_ch, 1, 3, 3).astype(np.float32)
+b = np.zeros(in_ch, dtype=np.float32)
+
+sdconv = ir.SDConv(
+    weight=W,
+    bias=b,
+    stride=(1, 1),
+    padding=(1, 1)
+)
+# groups is automatically set to in_channels
 ```
 
 ## Spatial Operations
@@ -269,13 +337,27 @@ When exporting `snn.Leaky(beta=0.9)`:
 
 ```python
 # snnTorch: beta = 0.9
-# T1C-IR: tau = 1/(1-beta) = 10, r = tau = 10, v_leak = 0
+# TALON IR: tau = 1/(1-beta) = 10, r = tau = 10, v_leak = 0
 
 # This ensures identical dynamics:
 # snnTorch: mem = beta*mem + x
-# T1C-IR: mem = beta*mem + (1-beta)*(v_leak + r*x)
+# TALON IR: mem = beta*mem + (1-beta)*(v_leak + r*x)
 #      = 0.9*mem + 0.1*(0 + 10*x)
 #      = 0.9*mem + x  ✓
+```
+
+### IF
+
+Integrate-and-Fire neuron (no leak). Simpler than LIF — membrane potential integrates input without decay. Spikes deterministically when `v >= v_threshold`, then resets to zero.
+
+```
+dv/dt = i
+spike when v >= v_threshold
+reset to 0 on spike
+```
+
+```python
+if_neuron = ir.IF(v_threshold=np.ones(128))
 ```
 
 ## Skip
@@ -394,7 +476,7 @@ edges = [
 
 ## ANN Activations
 
-For hybrid ANN-SNN architectures, T1C-IR supports common ANN activation functions. These are used in encoder/decoder layers that operate in rate-based mode.
+For hybrid ANN-SNN architectures, TALON IR supports common ANN activation functions. These are used in encoder/decoder layers that operate in rate-based mode.
 
 ### ReLU
 
@@ -531,8 +613,8 @@ Note: Dropout is typically a no-op during inference.
 Marker node to identify ANN vs SNN regions in hybrid architectures.
 
 ```python
-from t1c import ir
-from t1c.ir import NeuronMode
+from talon import ir
+from talon.ir import NeuronMode
 
 # Mark the start of an ANN encoder
 encoder_start = ir.HybridRegion(
@@ -603,12 +685,199 @@ version = ir.read_version('model.t1c')
 print(version)  # '0.0.1'
 ```
 
+## Ghost / Detect Primitives (SU-YOLO Mid-Ghost)
+
+These primitives support the SU-YOLO spiking object detection architecture built on Ghost modules. Ghost convolutions generate feature maps cheaply by performing a primary convolution followed by a depthwise "cheap" convolution, then concatenating both outputs to double the channel count at minimal cost.
+
+### ChannelSplit
+
+Splits a tensor along the channel dimension into multiple chunks.
+
+```python
+split = ir.ChannelSplit(
+    split_sections=[32, 32],   # Two equal chunks
+    dim=1,                      # Channel dimension
+    input_type={'input': np.array([64, 40, 40])}
+)
+# Output: 2 tensors of shape [32, 40, 40]
+```
+
+### Concat
+
+Concatenates multiple tensors along the channel dimension.
+
+```python
+concat = ir.Concat(
+    num_inputs=2,
+    dim=1,
+    input_type={'input': np.array([32, 40, 40])}
+)
+```
+
+### SGhostConv
+
+Spiking Ghost Convolution: primary conv followed by cheap depthwise conv, concatenated.
+
+```python
+Cp = 32  # Primary output channels (total output = 2*Cp = 64)
+C_in = 16
+
+sghost = ir.SGhostConv(
+    primary_weight=np.random.randn(Cp, C_in, 3, 3).astype(np.float32),
+    primary_bias=np.zeros(Cp, dtype=np.float32),
+    cheap_weight=np.random.randn(Cp, 1, 3, 3).astype(np.float32),
+    cheap_bias=np.zeros(Cp, dtype=np.float32),
+    primary_stride=(1, 1),
+    primary_padding=(1, 1),
+)
+# Output channels = 2 * Cp = 64
+```
+
+### SGhostEncoderLite
+
+Stem encoder (Layer 0) in SU-YOLO Mid-Ghost. Performs a standard conv followed by an SGhostConv with halved concatenation for better parameter efficiency.
+
+```python
+encoder = ir.SGhostEncoderLite(
+    conv1_weight=np.random.randn(16, 3, 3, 3).astype(np.float32),
+    conv1_bias=np.zeros(16, dtype=np.float32),
+    ghost_primary_weight=np.random.randn(16, 16, 3, 3).astype(np.float32),
+    ghost_primary_bias=np.zeros(16, dtype=np.float32),
+    ghost_cheap_weight=np.random.randn(16, 1, 3, 3).astype(np.float32),
+    ghost_cheap_bias=np.zeros(16, dtype=np.float32),
+    stride=2,
+)
+```
+
+### GhostBasicBlock1
+
+CSP-ELAN Ghost bottleneck block for backbone (stride-2). Contains three SGhostConv sub-modules (cv0, cvres, cv2) with a channel split and residual path.
+
+```python
+C1, C2 = 32, 64
+Cp0 = C2 // 2   # Primary channels for cv0
+
+gbb1 = ir.GhostBasicBlock1(
+    cv0_primary_weight=np.random.randn(Cp0, C1, 3, 3).astype(np.float32),
+    cv0_cheap_weight=np.random.randn(Cp0, 1, 3, 3).astype(np.float32),
+    cvres_primary_weight=np.random.randn(C2 // 4, C2, 1, 1).astype(np.float32),
+    cvres_cheap_weight=np.random.randn(C2 // 4, 1, 3, 3).astype(np.float32),
+    cv2_primary_weight=np.random.randn(Cp0, Cp0, 1, 1).astype(np.float32),
+    cv2_cheap_weight=np.random.randn(Cp0, 1, 3, 3).astype(np.float32),
+    stride=2,
+)
+# Input: [C1, H, W] -> Output: [C2, H/2, W/2]
+```
+
+### GhostBasicBlock2
+
+CSP-ELAN Ghost bottleneck block for FPN head (no stride). Same structure as Block1 but without the residual downsampling branch.
+
+```python
+C1, C2 = 64, 64
+Cp0 = C2 // 2
+
+gbb2 = ir.GhostBasicBlock2(
+    cv0_primary_weight=np.random.randn(Cp0, C1, 3, 3).astype(np.float32),
+    cv0_cheap_weight=np.random.randn(Cp0, 1, 3, 3).astype(np.float32),
+    cv2_primary_weight=np.random.randn(Cp0, Cp0, 1, 1).astype(np.float32),
+    cv2_cheap_weight=np.random.randn(Cp0, 1, 3, 3).astype(np.float32),
+)
+# Input: [C1, H, W] -> Output: [C2, H, W]
+```
+
+### SDDetect
+
+Per-scale spiking object detection head. Contains parallel branches for bounding box regression (cv2) and classification (cv3).
+
+```python
+detect = ir.SDDetect(
+    num_classes=80,
+    reg_max=16,
+    stride=8,
+    cv2_w0=np.random.randn(64, 64, 3, 3).astype(np.float32),
+    cv2_b0=np.zeros(64, dtype=np.float32),
+    cv2_w1=np.random.randn(64, 64, 3, 3).astype(np.float32),
+    cv2_b1=np.zeros(64, dtype=np.float32),
+    cv2_w2=np.random.randn(64, 64, 1, 1).astype(np.float32),
+    cv2_b2=np.zeros(64, dtype=np.float32),
+    cv3_w0=np.random.randn(80, 64, 3, 3).astype(np.float32),
+    cv3_b0=np.zeros(80, dtype=np.float32),
+    cv3_w1=np.random.randn(80, 80, 3, 3).astype(np.float32),
+    cv3_b1=np.zeros(80, dtype=np.float32),
+    cv3_w2=np.random.randn(80, 80, 1, 1).astype(np.float32),
+    cv3_b2=np.zeros(80, dtype=np.float32),
+)
+```
+
+### DFLDecode
+
+Distribution Focal Loss decoding. Converts DFL logits into box distance values using a weighted softmax.
+
+```python
+dfl = ir.DFLDecode(reg_max=16)
+```
+
+### Dist2BBox
+
+Converts distance predictions (top, left, bottom, right) to bounding box format (x_center, y_center, w, h) with optional anchor point generation.
+
+```python
+d2b = ir.Dist2BBox(stride=8)
+```
+
+| Primitive | Category | In Architecture |
+|-----------|----------|-----------------|
+| ChannelSplit | Routing | Feature channel splitting for CSP-ELAN |
+| Concat | Routing | Feature channel concatenation |
+| SGhostConv | Ghost Conv | Primary + cheap depthwise concatenation |
+| SGhostEncoderLite | Ghost Conv | Stem encoder (Layer 0) |
+| GhostBasicBlock1 | Ghost Block | Backbone block (stride-2) |
+| GhostBasicBlock2 | Ghost Block | FPN head block (no stride) |
+| SDDetect | Detection | Per-scale detection head |
+| DFLDecode | Detection | DFL box decoder |
+| Dist2BBox | Detection | Distance to bounding box |
+| NMS | Detection | Non-Maximum Suppression (post-model) |
+
+### NMS
+
+Non-Maximum Suppression for filtering overlapping detections. Runs on the ARM CPU post-accelerator (not synthesized to HLS). Carries no learned weights — purely parametric.
+
+Algorithm: O(N log N) score sort + O(N * K) greedy IoU suppression.
+
+```python
+nms = ir.NMS(
+    score_threshold=0.25,   # Minimum confidence to keep
+    iou_threshold=0.45,     # IoU overlap threshold for suppression
+    max_detections=300,     # Cap on output count (0 = unlimited)
+)
+
+# Apply to detections: (N, 5+num_classes) where columns are
+# [cx, cy, w, h, objectness, cls_0, cls_1, ...]
+detections = np.random.randn(100, 85).astype(np.float32)
+detections[:, 4] = np.random.rand(100)  # objectness scores
+kept = nms(detections)
+```
+
+### SU-YOLO Detection Pipeline
+
+The full detection pipeline chains these primitives:
+
+```
+GhostBasicBlock1/2 → SDDetect → DFLDecode → Dist2BBox → NMS
+```
+
+1. **SDDetect**: Splits features into box regression (cv2) and classification (cv3) branches
+2. **DFLDecode**: Converts DFL logits to distance values via weighted softmax
+3. **Dist2BBox**: Converts (l, t, r, b) distances + anchors to (cx, cy, w, h) pixel boxes
+4. **NMS**: Filters overlapping boxes, keeps highest-confidence per region
+
 ## Custom Primitives
 
 Register custom node types:
 
 ```python
-from t1c.ir import Node, register_node
+from talon.ir import Node, register_node
 from dataclasses import dataclass
 
 @register_node
