@@ -16,4 +16,5 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# npm-only repo; ignore Yarn lockfile if someone runs yarn locally
 yarn.lock

@@ -4,14 +4,24 @@ This website is built using [Docusaurus](https://docusaurus.io/), a modern stati
 
 ## Installation
 
+Use **npm** (same as CI). From the repo root:
+
 ```bash
-yarn
+npm ci
 ```
+
+For day-to-day work, a normal install is fine:
+
+```bash
+npm install
+```
+
+After you change dependencies in `package.json`, run `npm install` and commit the updated **`package-lock.json`**.
 
 ## Local Development
 
 ```bash
-yarn start
+npm start
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
@@ -19,7 +29,7 @@ This command starts a local development server and opens up a browser window. Mo
 ## Build
 
 ```bash
-yarn build
+npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
