@@ -2,9 +2,12 @@
 sidebar_position: 1
 ---
 
-# TALON Ecosystem Introduction
+# Introduction
 
 **TALON IR** is a neuromorphic intermediate representation designed for Type 1 Compute hardware. The ecosystem consists of seven packages that work together to bridge ML frameworks with neuromorphic deployment, hardware mapping, FPGA compilation, and real-time event streaming.
+
+![Talon Ecosystem](/img/talon-ecosystem/talon_ecosystem.png)
+*High-Level Architecture Overview*
 
 ## TALON
 
@@ -27,6 +30,10 @@ This installs all ecosystem packages and provides both the `talon` and `t1c` CLI
 | **talon.graph** | `talon-graph` | Graph partitioning, placement, routing, resource allocation | talon-ir, rustworkx |
 | **talon.backend** | `talon-backend` | Backend compilation, CPU simulation, HLS4ML FPGA backend | talon-ir, talon-graph, numpy |
 | **talon.io** | `talon-io` | Event streaming, format conversion, neural encoding | numpy |
+
+<br/>
+![Talon Modules](/img/talon-ecosystem/talon_sdk_packages.png)
+*Talon Modules/Packages*
 
 ## Design Philosophy
 
@@ -90,13 +97,13 @@ TALON IR is designed for:
 
 Repositories (Git clone names) and their installed package names:
 
-- **t1c-sdk**: SDK meta-package and CLI (installs as `t1c-talon`; commands: `talon` and `t1c`)
-- **t1cir**: Core IR package (installs as `talon-ir`; use `from talon import ir`)
-- **t1ctorch**: PyTorch bridge (installs as `talon-bridge`; use `from talon import bridge`)
-- **t1cviz**: Visualization tools (installs as `talon-viz`; use `from talon import viz`)
-- **t1cgraph**: Graph partitioning and hardware mapping (installs as `talon-graph`; use `from talon import graph`)
-- **t1cbackend**: Backend compilation and simulation (installs as `talon-backend`; use `from talon import backend`)
-- **t1cio**: Event streaming and I/O (installs as `talon-io`; use `from talon import io`)
+- **t1ctalon**: SDK meta-package and CLI (installs as `t1c-talon`; commands: `talon` and `t1c`)
+- **talonir**: Core IR package (installs as `talon-ir`; use `from talon import ir`)
+- **talonbridge**: PyTorch bridge (installs as `talon-bridge`; use `from talon import bridge`)
+- **talonviz**: Visualization tools (installs as `talon-viz`; use `from talon import viz`)
+- **talongraph**: Graph partitioning and hardware mapping (installs as `talon-graph`; use `from talon import graph`)
+- **talonbackend**: Backend compilation and simulation (installs as `talon-backend`; use `from talon import backend`)
+- **talonio**: Event streaming and I/O (installs as `talon-io`; use `from talon import io`)
 
 ## Next Steps
 
@@ -107,8 +114,8 @@ Repositories (Git clone names) and their installed package names:
 
 ### Tutorials
 
-- [TALON IR Basics](./tutorial/tutorial_t1cir_basics) — Primitives, graphs, serialization
-- [T1CViz](./tutorial/tutorial_t1cviz) — Graph visualization and event processing
+- [TALON IR Basics](./tutorial/tutorial_talonir_basics) — Primitives, graphs, serialization
+- [talonviz](./tutorial/tutorial_talonviz) — Graph visualization and event processing
 - [TALON SDK](./tutorial/tutorial_talon) — Analysis, profiling, linting, fingerprinting
 - [Bridge](./tutorial/tutorial_bridge) — Export/import PyTorch models
 - [Ghost & Detection](./tutorial/tutorial_ghost_detection) — GhostNet and detection pipeline

@@ -48,7 +48,7 @@ print(state.keys())  # dict_keys(['lif1', 'lif2'])
 If using the snnTorch fork (wrappers use talon.ir and talon.bridge under the hood):
 
 ```python
-from snntorch.import_t1cir import import_from_ir
+from snntorch.import_talonir import import_from_ir
 
 executor = import_from_ir('model.t1c', return_state=True)
 ```

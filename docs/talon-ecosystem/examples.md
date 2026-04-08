@@ -10,8 +10,8 @@ Real-world TALON IR patterns and architectures. For step-by-step walkthroughs, s
 
 | Tutorial | Topics |
 |----------|--------|
-| [TALON IR Basics](./tutorial/tutorial_t1cir_basics) | Primitives, graphs, serialization, ghost & detection |
-| [T1CViz](./tutorial/tutorial_t1cviz) | Graph visualization, event processing, pattern detection |
+| [TALON IR Basics](./tutorial/tutorial_talonir_basics) | Primitives, graphs, serialization, ghost & detection |
+| [talonviz](./tutorial/tutorial_talonviz) | Graph visualization, event processing, pattern detection |
 | [TALON SDK](./tutorial/tutorial_talon) | Analysis, profiling, linting, fingerprinting |
 | [Bridge](./tutorial/tutorial_bridge) | Export/import, stateful LIF, CyclicGraphExecutor |
 | [Ghost & Detection](./tutorial/tutorial_ghost_detection) | GhostNet architecture, detection pipeline |

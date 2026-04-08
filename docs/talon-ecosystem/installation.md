@@ -40,17 +40,17 @@ talon info
 
 ## Development Install
 
-For development, install all packages in editable mode. Repository names (t1cir, t1ctorch, t1cviz, t1cgraph, t1cbackend, t1cio, t1c-sdk) are the Git clone directory names; the installed package names are talon-ir, talon-bridge, talon-viz, talon-graph, talon-backend, talon-io, t1c-talon.
+For development, install all packages in editable mode. Repository names (talonir, talonbridge, talonviz, talongraph, talonbackend, talonio, t1ctalon) are the Git clone directory names; the installed package names are talon-ir, talon-bridge, talon-viz, talon-graph, talon-backend, talon-io, t1c-talon.
 
 ```bash
 # Clone repositories
-git clone <t1c-sdk-repo> t1c-sdk
-git clone <t1cir-repo> t1cir
-git clone <t1ctorch-repo> t1ctorch
-git clone <t1cviz-repo> t1cviz
-git clone <t1cgraph-repo> t1cgraph
-git clone <t1cbackend-repo> t1cbackend
-git clone <t1cio-repo> t1cio
+git clone <t1ctalon-repo> t1ctalon
+git clone <talonir-repo> talonir
+git clone <talonbridge-repo> talonbridge
+git clone <talonviz-repo> talonviz
+git clone <talongraph-repo> talongraph
+git clone <talonbackend-repo> talonbackend
+git clone <talonio-repo> talonio
 
 # Create virtual environment (using uv recommended)
 uv venv .venv
@@ -63,22 +63,22 @@ source .venv/bin/activate     # Linux/Mac
 # poetry shell                  # Using poetry
 
 # Install in dependency order (using uv recommended)
-uv pip install -e ./t1cir
-uv pip install -e ./t1cio
-uv pip install -e ./t1ctorch
-uv pip install -e ./t1cviz
-uv pip install -e ./t1cgraph
-uv pip install -e ./t1cbackend
-uv pip install -e ./t1c-sdk
+uv pip install -e ./talonir
+uv pip install -e ./talonio
+uv pip install -e ./talonbridge
+uv pip install -e ./talonviz
+uv pip install -e ./talongraph
+uv pip install -e ./talonbackend
+uv pip install -e ./t1ctalon
 
 # Or use pip:
-# pip install -e ./t1cir
-# pip install -e ./t1cio
-# pip install -e ./t1ctorch
-# pip install -e ./t1cviz
-# pip install -e ./t1cgraph
-# pip install -e ./t1cbackend
-# pip install -e ./t1c-sdk
+# pip install -e ./talonir
+# pip install -e ./talonio
+# pip install -e ./talonbridge
+# pip install -e ./talonviz
+# pip install -e ./talongraph
+# pip install -e ./talonbackend
+# pip install -e ./t1ctalon
 ```
 
 ## Verify Installation
@@ -143,8 +143,8 @@ uv pip install -e ./snntorch
 ```
 
 This adds two wrapper functions (they use talon.ir and talon.bridge under the hood):
-- `snntorch.export_t1cir.export_to_ir()` - Exports snnTorch models
-- `snntorch.import_t1cir.import_from_ir()` - Imports TALON IR graphs
+- `snntorch.export_talonir.export_to_ir()` - Exports snnTorch models
+- `snntorch.import_talonir.import_from_ir()` - Imports TALON IR graphs
 
 ## Troubleshooting
 
@@ -154,20 +154,20 @@ Ensure packages are installed in the correct order. talon-ir must be installed b
 
 ```bash
 # Using uv (recommended)
-uv pip install -e ./t1cir --no-deps
-uv pip install -e ./t1cio --no-deps
-uv pip install -e ./t1ctorch --no-deps
-uv pip install -e ./t1cviz --no-deps
-uv pip install -e ./t1cgraph --no-deps
-uv pip install -e ./t1cbackend --no-deps
+uv pip install -e ./talonir --no-deps
+uv pip install -e ./talonio --no-deps
+uv pip install -e ./talonbridge --no-deps
+uv pip install -e ./talonviz --no-deps
+uv pip install -e ./talongraph --no-deps
+uv pip install -e ./talonbackend --no-deps
 
 # Or using pip
-# pip install -e ./t1cir --no-deps
-# pip install -e ./t1cio --no-deps
-# pip install -e ./t1ctorch --no-deps
-# pip install -e ./t1cviz --no-deps
-# pip install -e ./t1cgraph --no-deps
-# pip install -e ./t1cbackend --no-deps
+# pip install -e ./talonir --no-deps
+# pip install -e ./talonio --no-deps
+# pip install -e ./talonbridge --no-deps
+# pip install -e ./talonviz --no-deps
+# pip install -e ./talongraph --no-deps
+# pip install -e ./talonbackend --no-deps
 ```
 
 ### HDF5 Error on Windows
@@ -199,11 +199,11 @@ uv pip install pytest numpy torch snntorch
 # pip install pytest numpy torch snntorch
 
 # Run tests
-cd t1cir && pytest tests/
-cd ../t1ctorch && pytest tests/
-cd ../t1cviz && pytest tests/
-cd ../t1cgraph && pytest tests/
-cd ../t1cbackend && pytest tests/
-cd ../t1cio && pytest tests/
-cd ../t1c-sdk && pytest tests/
+cd talonir && pytest tests/
+cd ../talonbridge && pytest tests/
+cd ../talonviz && pytest tests/
+cd ../talongraph && pytest tests/
+cd ../talonbackend && pytest tests/
+cd ../talonio && pytest tests/
+cd ../t1ctalon && pytest tests/
 ```

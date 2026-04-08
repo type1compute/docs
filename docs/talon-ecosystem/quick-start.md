@@ -154,8 +154,8 @@ print(f"Output shape: {output.shape}")
 
 Step-by-step guides with inline code and output:
 
-- [Tutorial: TALON IR Basics](./tutorial/tutorial_t1cir_basics) — Primitives, graphs, serialization, ghost & detection
-- [Tutorial: T1CViz](./tutorial/tutorial_t1cviz) — Graph visualization and event processing
+- [Tutorial: TALON IR Basics](./tutorial/tutorial_talonir_basics) — Primitives, graphs, serialization, ghost & detection
+- [Tutorial: VIZ](./tutorial/tutorial_talonviz) — Graph visualization and event processing
 - [Tutorial: TALON SDK](./tutorial/tutorial_talon) — Analysis, profiling, linting, fingerprinting
 - [Tutorial: Bridge](./tutorial/tutorial_bridge) — Export/import, stateful LIF, CyclicGraphExecutor
 - [Tutorial: Ghost & Detection](./tutorial/tutorial_ghost_detection) — GhostNet primitives and detection pipeline

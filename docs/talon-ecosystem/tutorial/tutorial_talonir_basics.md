@@ -626,7 +626,7 @@ You've learned:
 
 ## What's Next
 
-- [Tutorial: T1CViz](./tutorial_t1cviz) — Visualize graphs and spike events
+- [Tutorial: talonviz](./tutorial_talonviz) — Visualize graphs and spike events
 - [Tutorial: TALON SDK](./tutorial_talon) — Analyze, profile, and deploy graphs
 - [Tutorial: Bridge](./tutorial_bridge) — Export/import PyTorch models
 - [Primitives Reference](../primitives) — All 36 TALON IR primitives

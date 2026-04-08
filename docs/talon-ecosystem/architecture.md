@@ -48,28 +48,28 @@ graph TD
 ## Package Dependency Map
 
 ```
-                          ┌──────────────────────────────┐
-                          │         talon.ir              │
-                          │  (numpy, rustworkx, h5py)    │
-                          └──────────────┬───────────────┘
-                                         │
-        ┌────────────┬───────────────────┼────────────┬────────────┐
-        │            │                   │            │            │
-        ▼            ▼                   ▼            ▼            │
- ┌────────────┐ ┌─────────┐ ┌──────────────┐ ┌──────────┐        │
- │talon.bridge│ │talon.viz│ │  talon.graph │ │ talon.io │        │
- │ (torch)    │ │(pillow) │ │(numpy,scipy) │ │ (numpy)  │        │
- └────────────┘ └─────────┘ └──────┬───────┘ └──────────┘        │
-                                    │                              │
-                                    ▼                              │
-                            ┌──────────────┐                      │
-                            │talon.backend │◄─────────────────────┘
+                    ┌──────────────────────────────┐
+                    │         talon.ir             │
+                    │  (numpy, rustworkx, h5py)    │
+                    └──────────────┬───────────────┘
+                                   │
+        ┌────────────┬─────────────┼────────────┬──────────────────┐
+        │            │             │            │                  │
+        ▼            ▼             ▼            ▼                  │
+ ┌────────────┐ ┌─────────┐ ┌──────────────┐ ┌──────────┐          │
+ │talon.bridge│ │talon.viz│ │  talon.graph │ │ talon.io │          │
+ │ (torch)    │ │(pillow) │ │(numpy,scipy) │ │ (numpy)  │          │
+ └────────────┘ └─────────┘ └──────┬───────┘ └──────────┘          │
+                                   │                               │
+                                   ▼                               │
+                            ┌──────────────┐                       │
+                            │talon.backend │◄──────────────────────┘
                             │(numpy)       │
                             └──────────────┘
 
               ┌────────────────────────────────────────────┐
-              │                 talon.sdk                   │
-              │          (all packages + click, rich)       │
+              │                 talon.sdk                  │
+              │          (all packages + click, rich)      │
               └────────────────────────────────────────────┘
 ```
 
@@ -111,7 +111,6 @@ graph LR
     Upsample --> Node
     Flatten --> Node
 
-    style talon.ir fill:#16213e,color:#e0e0ff,stroke:#4a4aff
 ```
 
 ### Primitive Categories
@@ -166,7 +165,6 @@ graph LR
     Runtime --> FromIR
     Quantize --> ToIR
 
-    style talon.bridge fill:#0f3460,color:#e0e0ff,stroke:#4a4aff
 ```
 
 ### Export Flow (PyTorch → IR)
@@ -246,7 +244,7 @@ graph LR
     Display --> Render
     Compiled --> Serialize
 
-    style talon.viz fill:#0f3460,color:#e0e0ff,stroke:#4a4aff
+    
 ```
 
 ### Visualization Pipeline
@@ -301,7 +299,6 @@ graph LR
     Constraints --> Partition
     Constraints --> Route
 
-    style talon.graph fill:#0f3460,color:#e0e0ff,stroke:#4a4aff
 ```
 
 ### Partitioning Algorithms
@@ -359,7 +356,6 @@ graph LR
     HLS --> Zynq
     ConfigGen --> Templates
 
-    style talon.backend fill:#0f3460,color:#e0e0ff,stroke:#4a4aff
 ```
 
 ### Simulation Pipeline
@@ -418,7 +414,6 @@ graph LR
     Init --> H5
     Init --> Throughput
 
-    style talon.io fill:#0f3460,color:#e0e0ff,stroke:#4a4aff
 ```
 
 ### Event Data Model
@@ -449,7 +444,7 @@ EVENT_DTYPE = np.dtype([
 
 ```mermaid
 graph TD
-    subgraph "talon.sdk (t1c-talon)"
+    subgraph talon.sdk["talon.sdk (t1c-talon)"]
         Init["__init__.py<br/>re-exports all sub-packages"]
         CLI["cli.py<br/>talon / t1c CLI<br/>analyze, profile, lint, compare,<br/>inspect, validate, convert,<br/>pipeline, energy, run"]
         Analyze["analyze.py<br/>analyze_graph() → GraphStats"]
@@ -483,7 +478,6 @@ graph TD
     CLI --> Pipeline
     Main --> CLI
 
-    style "talon.sdk (t1c-talon)" fill:#1a1a2e,color:#e0e0ff,stroke:#4a4aff
 ```
 
 ### CLI Commands
@@ -574,10 +568,10 @@ This allows the full ecosystem to feel like a single library (`talon`) while sti
 
 | PyPI Package | Python Namespace | Repository |
 |-------------|-----------------|------------|
-| `talon-ir` | `talon.ir` | t1cir |
-| `talon-bridge` | `talon.bridge` | t1ctorch |
-| `talon-viz` | `talon.viz` | t1cviz |
-| `talon-graph` | `talon.graph` | t1cgraph |
-| `talon-backend` | `talon.backend` | t1cbackend |
-| `talon-io` | `talon.io` | t1cio |
-| `t1c-talon` | `talon.sdk` | t1c-sdk |
+| `talon-ir` | `talon.ir` | talonir |
+| `talon-bridge` | `talon.bridge` | talonbridge |
+| `talon-viz` | `talon.viz` | talonviz |
+| `talon-graph` | `talon.graph` | talongraph |
+| `talon-backend` | `talon.backend` | talonbackend |
+| `talon-io` | `talon.io` | talonio |
+| `t1c-talon` | `talon.sdk` | t1ctalon |
