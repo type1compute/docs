@@ -62,7 +62,7 @@ graph = bridge.to_ir(model, sample)
 If using the snnTorch fork with TALON IR support (wrappers use talon.ir and talon.bridge under the hood):
 
 ```python
-from snntorch.export_t1cir import export_to_ir
+from snntorch.export_talonir import export_to_ir
 
 graph = export_to_ir(model, sample)
 ```

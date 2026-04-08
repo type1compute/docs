@@ -8,7 +8,7 @@ Generate interactive visualizations of TALON IR graphs and event-based data usin
 
 ## Tutorials
 
-- [Tutorial: T1CViz](./tutorial/tutorial_t1cviz) — Step-by-step guide with inline code and output
+- [Tutorial: talonviz](./tutorial/tutorial_talonviz) — Step-by-step guide with inline code and output
 - [Tutorial: Event I/O](./tutorial/tutorial_event_io) — Neural encoding, HDF5, throughput benchmarking
 
 For local notebook execution, see the [example_notebooks](./example_notebooks/) directory.

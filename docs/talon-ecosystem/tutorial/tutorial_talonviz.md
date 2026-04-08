@@ -2,9 +2,9 @@
 sidebar_position: 12
 ---
 
-# Tutorial: T1CViz — Visualization
+# Tutorial: talonviz — Visualization
 
-T1CViz provides interactive visualization tools for TALON IR graphs and neuromorphic event data.
+talonviz provides interactive visualization tools for TALON IR graphs and neuromorphic event data.
 
 ## What You'll Learn
 
@@ -30,7 +30,7 @@ from talon import ir, viz
 
 os.makedirs("viz", exist_ok=True)
 
-print(f"T1CViz version: {viz.__version__}")
+print(f"talonviz version: {viz.__version__}")
 print(f"Tonic available: {viz.TONIC_AVAILABLE}")
 print(f"PIL available: {viz.PIL_AVAILABLE}")
 ```
@@ -38,7 +38,7 @@ print(f"PIL available: {viz.PIL_AVAILABLE}")
 **Output:**
 
 ```
-T1CViz version: 0.0.1
+talonviz version: 0.0.1
 Tonic available: False
 PIL available: True
 ```
@@ -47,7 +47,7 @@ PIL available: True
 
 ## 2. Graph Visualization
 
-T1CViz renders TALON IR graphs as interactive HTML with zoomable/pannable views, node details on hover, and architecture pattern highlighting.
+talonviz renders TALON IR graphs as interactive HTML with zoomable/pannable views, node details on hover, and architecture pattern highlighting.
 
 ### Create a Graph
 
@@ -139,7 +139,7 @@ Summary:
 
 ## 3. Event/Spike Visualization
 
-T1CViz processes neuromorphic event data into three representations:
+talonviz processes neuromorphic event data into three representations:
 
 | Representation | Shape | Description |
 |----------------|-------|-------------|
@@ -276,7 +276,7 @@ Features:
 
 ## 4. Pattern Detection
 
-T1CViz can detect common architectural patterns in graphs:
+talonviz can detect common architectural patterns in graphs:
 
 | Pattern | Description |
 |---------|-------------|

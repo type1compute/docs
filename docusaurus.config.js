@@ -133,8 +133,8 @@ const config = {
                 to: '/intro',
               },
               {
-                label: 'SpikeYoloV8-Tracker',
-                to: '/spikeyolo-v8-tracker/introduction',
+                label: 'Talon SDK',
+                to: '/talon-ecosystem/introduction',
               },
             ],
           },

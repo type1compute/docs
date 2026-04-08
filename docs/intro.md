@@ -4,37 +4,81 @@ sidebar_position: 1
 
 # Type 1 Compute Documentation
 
-Welcome to the Type 1 Compute documentation site.
+Welcome to the Type 1 Compute documentation site. Here you will find guides and references for neuromorphic tooling, event-based vision, and related projects.
 
 ## Projects
 
+### TALON Ecosystem
+
+**Neuromorphic IR, tooling, and deployment**
+
+TALON IR is an intermediate representation for Type 1 Compute hardware. The ecosystem packages cover PyTorch export, graph mapping, FPGA-oriented backends, visualization, and event I/O—installed together via `t1c-talon` with the `talon` and `t1c` CLIs.
+
+**[TALON Ecosystem →](./talon-ecosystem/introduction)**
+
 ### SpikeYoloV8-Tracker
 
-**Event-based Object Detection & Tracking with Spiking Neural Networks**
+**Event-based object detection and tracking with spiking neural networks**
 
-A complete end-to-end pipeline for real-time object detection and tracking using event camera data. The architecture is adapted from the BICLab SpikeYOLO ECCV 2024 implementation.
+An end-to-end pipeline for real-time object detection and tracking on event camera data, adapted from the BICLab SpikeYOLO ECCV 2024 line of work.
 
-**Key Features:**
-- BICLab ECCV 2024 Implementation with I-LIF spiking neurons
-- Configurable-class detection
-- Object tracking through time using ByteTracker
-- Event processing for SNN processing
-- Highly configurable training and testing pipeline
+**Key features:** I-LIF spiking neurons, configurable-class detection, ByteTracker-style tracking, and a configurable training and evaluation pipeline.
 
-**[Get Started with SpikeYoloV8-Tracker →](./spikeyolo-v8-tracker/introduction)**
+**[Get started with SpikeYoloV8-Tracker →](./spikeyolo-v8-tracker/introduction)**
 
-## Documentation Structure
+### Spike-Space-T1C
 
-- **[SpikeYoloV8-Tracker Documentation](./spikeyolo-v8-tracker/introduction)** - Complete guide for the event-based object detection and tracking system
+**Spiking neural network library and workflows**
 
-## Quick Links
+Documentation for Spike-Space-T1C: architecture, training, inference, datasets, and API references.
 
-- [SpikeYoloV8-Tracker Introduction](./spikeyolo-v8-tracker/introduction)
-- [Quick Start Guide](./spikeyolo-v8-tracker/quick-start)
-- [Installation Guide](./spikeyolo-v8-tracker/installation)
-- [Architecture Overview](./spikeyolo-v8-tracker/architecture)
+**[Spike-Space-T1C →](./spike-space-t1c/intro)**
+
+### Spectrum Analyzer
+
+**Spectrum-focused analysis and tooling**
+
+Guides for architecture, training, detection, model conversion, quantization, and configuration.
+
+**[Spectrum Analyzer →](./spectrum-analyzer/intro)**
+
+## Documentation structure
+
+| Area | Entry |
+|------|--------|
+| TALON Ecosystem | [Introduction](./talon-ecosystem/introduction) |
+| SpikeYoloV8-Tracker | [Introduction](./spikeyolo-v8-tracker/introduction) |
+| Spike-Space-T1C | [Overview](./spike-space-t1c/intro) |
+| Spectrum Analyzer | [Introduction](./spectrum-analyzer/intro) |
+
+## Quick links
+
+**TALON**
+
+- [Introduction](./talon-ecosystem/introduction)
+- [Installation](./talon-ecosystem/installation)
+- [Quick start](./talon-ecosystem/quick-start)
+
+**SpikeYoloV8-Tracker**
+
+- [Introduction](./spikeyolo-v8-tracker/introduction)
+- [Quick start](./spikeyolo-v8-tracker/quick-start)
+- [Installation](./spikeyolo-v8-tracker/installation)
+- [Architecture](./spikeyolo-v8-tracker/architecture)
+
+**Spike-Space-T1C**
+
+- [Intro](./spike-space-t1c/intro)
+- [Quickstart](./spike-space-t1c/getting-started/quickstart)
+- [Installation](./spike-space-t1c/getting-started/installation)
+
+**Spectrum Analyzer**
+
+- [Intro](./spectrum-analyzer/intro)
+- [Quickstart](./spectrum-analyzer/quickstart)
+- [Architecture](./spectrum-analyzer/architecture)
 
 ## Resources
 
-- **GitHub**: [Type 1 Compute](https://github.com/type1compute)
-- **SpikeYoloV8-Tracker Repository**: [https://github.com/type1compute/SpikeYoloV8-Tracker](https://github.com/type1compute/SpikeYoloV8-Tracker)
+- [**GitHub**](https://github.com/type1compute)
+- [**Type 1 Compute Website**](https://www.type1compute.com/)

@@ -262,6 +262,6 @@ All encoding functions accept and return NumPy arrays:
 
 ## What's Next
 
-- [Tutorial: T1CViz](./tutorial_t1cviz) — Visualize events as frames, rasters, and animated HTML
+- [Tutorial: Viz](./tutorial_talonviz) — Visualize events as frames, rasters, and animated HTML
 - [Tutorial: Backend](./tutorial_backend) — Simulate and profile with the CPU/FPGA backend
 - [Architecture](../architecture) — Ecosystem architecture overview

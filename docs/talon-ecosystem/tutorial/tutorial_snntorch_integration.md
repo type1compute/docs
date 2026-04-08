@@ -4,7 +4,7 @@ sidebar_position: 19
 
 # Tutorial: snnTorch Integration
 
-The snnTorch bridge (`snntorch.export_t1cir` / `snntorch.import_t1cir`) provides seamless conversion between snnTorch spiking neural networks and TALON IR. This tutorial covers the full round-trip workflow — training an SNN in snnTorch, exporting to TALON IR for hardware deployment, and importing back for inference.
+The snnTorch bridge (`snntorch.export_talonir` / `snntorch.import_talonir`) provides seamless conversion between snnTorch spiking neural networks and TALON IR. This tutorial covers the full round-trip workflow — training an SNN in snnTorch, exporting to TALON IR for hardware deployment, and importing back for inference.
 
 ## What You'll Learn
 
@@ -72,7 +72,7 @@ Model parameters: 102,026
 `export_to_ir()` traces the model with a sample input and maps each PyTorch module to the corresponding TALON IR primitive: `nn.Linear` → `Affine`, `snn.Leaky` → `LIF`.
 
 ```python
-from snntorch.export_t1cir import export_to_ir
+from snntorch.export_talonir import export_to_ir
 from talon import ir
 
 sample = torch.randn(1, 784)
@@ -137,7 +137,7 @@ Loaded: 6 nodes, 5 edges
 `import_from_ir()` reconstructs a PyTorch `GraphExecutor` from the TALON IR graph. With `return_state=True`, the executor maintains LIF membrane state across timesteps — matching snnTorch's stateful semantics.
 
 ```python
-from snntorch.import_t1cir import import_from_ir
+from snntorch.import_talonir import import_from_ir
 
 executor = import_from_ir(path, return_state=True)
 
@@ -386,8 +386,8 @@ print(f"  Peak memory:    {prof_result.peak_memory_bytes:,} bytes")
 
 | Function | Module | Description |
 |----------|--------|-------------|
-| `export_to_ir(module, sample)` | `snntorch.export_t1cir` | Trace snnTorch model → TALON IR graph |
-| `import_from_ir(path, return_state=True)` | `snntorch.import_t1cir` | Load TALON IR → PyTorch `GraphExecutor` |
+| `export_to_ir(module, sample)` | `snntorch.export_talonir` | Trace snnTorch model → TALON IR graph |
+| `import_from_ir(path, return_state=True)` | `snntorch.import_talonir` | Load TALON IR → PyTorch `GraphExecutor` |
 | `ir.write(path, graph)` | `talon.ir` | Save graph to HDF5 |
 | `ir.read(path)` | `talon.ir` | Load graph from HDF5 |
 | `sdk.analyze_graph(graph)` | `talon.sdk` | Compute parameters, FLOPs, depth |

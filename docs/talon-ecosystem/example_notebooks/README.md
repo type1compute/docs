@@ -6,8 +6,8 @@ Interactive Jupyter notebooks for learning the TALON ecosystem.
 
 | Notebook | Description |
 |----------|-------------|
-| [tutorial_t1cir_basics.ipynb](./tutorial_t1cir_basics.ipynb) | Building neural network graphs with TALON IR primitives (talon.ir) |
-| [tutorial_t1cviz.ipynb](./tutorial_t1cviz.ipynb) | talon.viz: visualization for graphs and neuromorphic events |
+| [tutorial_talonir_basics.ipynb](./tutorial_talonir_basics.ipynb) | Building neural network graphs with TALON IR primitives (talon.ir) |
+| [tutorial_talonviz.ipynb](./tutorial_talonviz.ipynb) | talon.viz: visualization for graphs and neuromorphic events |
 | [tutorial_talon.ipynb](./tutorial_talon.ipynb) | TALON: analysis, profiling, and deployment |
 | [tutorial_bridge.ipynb](./tutorial_bridge.ipynb) | Bridge: PyTorch ↔ TALON IR export, import, and stateful LIF execution |
 | [tutorial_ghost_detection.ipynb](./tutorial_ghost_detection.ipynb) | Ghost architecture and NMS detection pipeline |

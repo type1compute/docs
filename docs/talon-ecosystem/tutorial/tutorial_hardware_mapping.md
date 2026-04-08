@@ -29,9 +29,9 @@ pip install t1c-talon
 
 ```python
 import numpy as np
-from talon import ir, graph as t1cgraph
+from talon import ir, graph as talongraph
 
-spec = t1cgraph.HardwareSpec(
+spec = talongraph.HardwareSpec(
     max_neurons_per_core=1024,
     max_synapses_per_core=200000,
     sram_bytes_per_core=524288,
@@ -63,10 +63,10 @@ HardwareSpec:
 TALON includes presets for common FPGA targets:
 
 ```python
-zynq = t1cgraph.HardwareSpec.zynq_7020()
+zynq = talongraph.HardwareSpec.zynq_7020()
 print(f"Zynq-7020: cores={zynq.num_cores}, sram={zynq.sram_bytes_per_core:,}")
 
-zcu = t1cgraph.HardwareSpec.zcu102()
+zcu = talongraph.HardwareSpec.zcu102()
 print(f"ZCU102:    cores={zcu.num_cores}, sram={zcu.sram_bytes_per_core:,}")
 ```
 
@@ -142,7 +142,7 @@ Graph: 6 nodes, 5 edges
 Partition assigns each node to a core while respecting SRAM, neuron, and synapse constraints. The function returns a new `Graph` with `partition_metadata` attached.
 
 ```python
-partitioned = t1cgraph.partition(graph, spec)
+partitioned = talongraph.partition(graph, spec)
 pm = partitioned.partition_metadata
 
 print(f"Algorithm: {pm['algorithm']}")
@@ -187,7 +187,7 @@ Use `algorithm="greedy"` (default) for fast partitioning, or `algorithm="spectra
 After partitioning, allocate checks whether each core's assigned nodes fit within the hardware budget.
 
 ```python
-res_map = t1cgraph.allocate(partitioned, spec)
+res_map = talongraph.allocate(partitioned, spec)
 
 print(f"Resource Allocation:")
 print(f"  Total weight bytes: {res_map.total_weight_bytes:,}")
@@ -227,7 +227,7 @@ Resource Allocation:
 Route computes inter-core communication paths for cross-core edges. For single-core graphs, no routing is needed.
 
 ```python
-routed = t1cgraph.route(partitioned, spec)
+routed = talongraph.route(partitioned, spec)
 print(f"Routed graph: {len(routed.nodes)} nodes, {len(routed.edges)} edges")
 ```
 
@@ -244,7 +244,7 @@ Routed graph: 6 nodes, 5 edges
 Place maps logical cores onto the physical mesh to minimize total hop distance (Manhattan distance weighted by edge count).
 
 ```python
-placement = t1cgraph.place(partitioned, spec)
+placement = talongraph.place(partitioned, spec)
 
 print(f"Placement:")
 print(f"  Total hop distance: {placement.total_hop_distance}")
@@ -273,23 +273,23 @@ Placement:
 The full hardware mapping pipeline:
 
 ```python
-spec = t1cgraph.HardwareSpec.zcu102()
+spec = talongraph.HardwareSpec.zcu102()
 
 # 1. Partition
-partitioned = t1cgraph.partition(graph, spec)
+partitioned = talongraph.partition(graph, spec)
 pm = partitioned.partition_metadata
 print(f"1. Partitioned: {pm['num_cores_used']} cores, algo={pm['algorithm']}")
 
 # 2. Allocate
-res = t1cgraph.allocate(partitioned, spec)
+res = talongraph.allocate(partitioned, spec)
 print(f"2. Allocated: fits={res.fits_hardware}, peak_util={res.peak_core_utilization:.1%}")
 
 # 3. Route
-routed = t1cgraph.route(partitioned, spec)
+routed = talongraph.route(partitioned, spec)
 print(f"3. Routed: {len(routed.edges)} edges")
 
 # 4. Place
-placed = t1cgraph.place(partitioned, spec)
+placed = talongraph.place(partitioned, spec)
 print(f"4. Placed: total_hops={placed.total_hop_distance}, improvement={placed.improvement:.1f}%")
 ```
 

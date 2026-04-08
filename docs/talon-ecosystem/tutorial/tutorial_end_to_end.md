@@ -79,7 +79,7 @@ Model: 402,986 parameters
 The snnTorch bridge traces the model and converts each layer to its TALON IR primitive.
 
 ```python
-from snntorch.export_t1cir import export_to_ir
+from snntorch.export_talonir import export_to_ir
 from talon import ir
 
 graph = export_to_ir(model, torch.randn(1, 1, 28, 28))
@@ -563,7 +563,7 @@ Simulation: 10 steps, spikes={'lif1': 0, 'lif2': 0}
 
 | Step | Module | Function |
 |------|--------|----------|
-| Export | `snntorch.export_t1cir` | `export_to_ir(model, sample)` |
+| Export | `snntorch.export_talonir` | `export_to_ir(model, sample)` |
 | Serialize | `talon.ir` | `ir.write(path, graph)` / `ir.read(path)` |
 | Analyze | `talon.sdk` | `analyze_graph(graph)` |
 | Profile | `talon.sdk` | `profile_graph(graph)` |
